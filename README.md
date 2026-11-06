@@ -1,4 +1,8 @@
-# محرك القرارات للأمن السيبراني
+# محرك القرارات للأمن السيبراني · Cybersecurity Decision Engine
+
+> تم إعداده بواسطة الطالب **أثير بلال محمد** · Prepared by student **Ather Bilal Mohammed**
+
+🌐 ثنائي اللغة: العربية / English — بزر تبديل أعلى الصفحة.
 
 تطبيق ويب تفاعلي باللغة العربية لدعم قرارات الأمن السيبراني ومواءمتها مع الأعمال، مبني على منهجية كتاب
 **Rational Cybersecurity for Business** للمؤلف Dan Blum (Apress 2020, CC BY 4.0).
