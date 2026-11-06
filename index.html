@@ -1,0 +1,1293 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>محرك القرارات للأمن السيبراني</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+:root{
+  --bg:#0a0f1c;--bg2:#0e1527;--panel:#121a2f;--panel2:#172140;--line:#243256;--line2:#2f3f6b;
+  --tx:#e7ecf7;--mu:#8e9bbb;--mu2:#64718f;
+  --ac:#5b8cff;--ac2:#7aa2ff;--gr:#22c55e;--grs:rgba(34,197,94,.12);--rd:#f05252;--rds:rgba(240,82,82,.12);
+  --am:#f5a524;--ams:rgba(245,165,36,.12);--cr:#e11d48;--cy:#22d3ee;--vi:#a78bfa;
+  --r:14px;--sh:0 8px 30px rgba(0,0,0,.35);
+}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--bg);color:var(--tx);font-family:"IBM Plex Sans Arabic",system-ui,sans-serif;font-size:14.5px;line-height:1.6}
+body{background:radial-gradient(1200px 600px at 85% -10%,rgba(91,140,255,.12),transparent 60%),radial-gradient(900px 500px at -10% 110%,rgba(34,211,238,.06),transparent 60%),var(--bg);min-height:100vh}
+a{color:var(--ac2)}
+.wrap{max-width:1360px;margin:0 auto;padding:18px 18px 60px}
+header.top{display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin-bottom:14px}
+.logo{width:42px;height:42px;border-radius:12px;background:linear-gradient(135deg,#3b6cf6,#22d3ee);display:grid;place-items:center;box-shadow:var(--sh);flex:none}
+.logo svg{width:24px;height:24px}
+.ttl h1{margin:0;font-size:19px;font-weight:700;letter-spacing:-.2px}
+.ttl p{margin:0;color:var(--mu);font-size:12.5px}
+.top .sp{flex:1}
+.btn{border:1px solid var(--line2);background:var(--panel2);color:var(--tx);padding:9px 16px;border-radius:10px;font:inherit;font-weight:600;cursor:pointer;display:inline-flex;align-items:center;gap:8px;transition:.15s}
+.btn:hover{border-color:var(--ac);background:#1c2850}
+.btn.pri{background:linear-gradient(135deg,#3b6cf6,#5b8cff);border-color:transparent;box-shadow:0 6px 20px rgba(59,108,246,.35)}
+.btn.pri:hover{filter:brightness(1.1)}
+.btn.sm{padding:6px 11px;font-size:12.5px;border-radius:8px}
+.btn[disabled]{opacity:.5;cursor:not-allowed}
+.status{font-size:12px;color:var(--mu);display:flex;align-items:center;gap:6px}
+.dot{width:8px;height:8px;border-radius:50%;background:var(--mu2)}
+.dot.on{background:var(--gr);box-shadow:0 0 10px var(--gr)}
+.dot.busy{background:var(--am);animation:pulse 1s infinite}
+@keyframes pulse{50%{opacity:.3}}
+nav.tabs{display:flex;gap:6px;overflow-x:auto;padding:4px;background:var(--bg2);border:1px solid var(--line);border-radius:14px;margin-bottom:16px;scrollbar-width:none;position:sticky;top:6px;z-index:20;backdrop-filter:blur(8px)}
+nav.tabs::-webkit-scrollbar{display:none}
+nav.tabs a{flex:1 0 auto;text-decoration:none;color:var(--mu);padding:10px 14px;border-radius:10px;font-weight:600;font-size:13.5px;display:flex;align-items:center;gap:8px;white-space:nowrap;justify-content:center}
+nav.tabs a .n{width:22px;height:22px;border-radius:7px;background:var(--panel2);display:grid;place-items:center;font-size:12px;color:var(--mu)}
+nav.tabs a.act{background:var(--panel2);color:var(--tx);box-shadow:inset 0 0 0 1px var(--line2)}
+nav.tabs a.act .n{background:var(--ac);color:#fff}
+section.tab{display:none}
+section.tab.act{display:block;animation:fade .25s}
+@keyframes fade{from{opacity:0;transform:translateY(4px)}}
+.grid{display:grid;gap:14px}
+.g2{grid-template-columns:repeat(2,minmax(0,1fr))}
+.g3{grid-template-columns:repeat(3,minmax(0,1fr))}
+.g4{grid-template-columns:repeat(4,minmax(0,1fr))}
+.g5{grid-template-columns:repeat(5,minmax(0,1fr))}
+.g6{grid-template-columns:repeat(6,minmax(0,1fr))}
+.s2{grid-column:span 2}.s3{grid-column:span 3}
+@media(max-width:1100px){.g4,.g5,.g6{grid-template-columns:repeat(2,minmax(0,1fr))}.g3{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:720px){.fair3{grid-template-columns:1.1fr repeat(3,1fr);gap:4px}.fair3 input{font-size:11.5px;padding:6px 2px}.fair3 b{font-size:11.5px}}
+@media(max-width:720px){.g2,.g3,.g4,.g5,.g6{grid-template-columns:1fr}.s2,.s3{grid-column:auto}.wrap{padding:12px 10px 50px}.ttl h1{font-size:16px}}
+.card{background:linear-gradient(180deg,var(--panel),#101830);border:1px solid var(--line);border-radius:var(--r);padding:16px;box-shadow:var(--sh);min-width:0}
+.card h3{margin:0 0 12px;font-size:14.5px;font-weight:700;display:flex;align-items:center;gap:8px}
+.card h3 .ic{width:26px;height:26px;border-radius:8px;display:grid;place-items:center;background:rgba(91,140,255,.15);color:var(--ac2);font-size:13px;flex:none}
+.card h3 .tag{margin-inline-start:auto}
+.sub{color:var(--mu);font-size:12.5px;margin:-6px 0 12px}
+label.f{display:block;font-size:12.5px;color:var(--mu);margin-bottom:10px}
+label.f>span{display:block;margin-bottom:4px}
+input[type=text],input[type=password],input[type=number],input[type=date],select,textarea{width:100%;background:var(--bg2);border:1px solid var(--line2);color:var(--tx);border-radius:9px;padding:8px 10px;font:inherit;font-size:13.5px;outline:none}
+input:focus,select:focus,textarea:focus{border-color:var(--ac)}
+textarea{min-height:110px;resize:vertical}
+input[type=range]{width:100%;accent-color:var(--ac)}
+.seg{display:flex;background:var(--bg2);border:1px solid var(--line2);border-radius:10px;padding:3px;gap:3px}
+.seg button{flex:1;background:none;border:0;color:var(--mu);padding:6px 4px;border-radius:7px;font:inherit;font-size:12.5px;cursor:pointer;font-weight:600}
+.seg button.on{background:var(--ac);color:#fff}
+.chk{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--tx);cursor:pointer;margin-bottom:8px}
+.chk input{accent-color:var(--ac);width:16px;height:16px}
+.tag{display:inline-flex;align-items:center;gap:5px;padding:3px 9px;border-radius:999px;font-size:11.5px;font-weight:600;background:var(--panel2);border:1px solid var(--line2);color:var(--tx);white-space:nowrap}
+.tag.g{background:var(--grs);border-color:rgba(34,197,94,.35);color:#86efac}
+.tag.r{background:var(--rds);border-color:rgba(240,82,82,.35);color:#fca5a5}
+.tag.a{background:var(--ams);border-color:rgba(245,165,36,.35);color:#fcd34d}
+.tag.b{background:rgba(91,140,255,.14);border-color:rgba(91,140,255,.35);color:#a9c1ff}
+.tag.c{background:rgba(225,29,72,.18);border-color:rgba(225,29,72,.5);color:#fda4af}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.kpi{background:var(--bg2);border:1px solid var(--line);border-radius:12px;padding:12px 14px;position:relative;overflow:hidden}
+.kpi .l{font-size:12px;color:var(--mu)}
+.kpi .v{font-size:22px;font-weight:700;letter-spacing:-.3px;direction:ltr;text-align:right}
+.kpi .h{font-size:11.5px;color:var(--mu2)}
+.kpi::after{content:"";position:absolute;inset-inline-start:0;top:0;bottom:0;width:3px;background:var(--ac)}
+.kpi.g::after{background:var(--gr)}.kpi.r::after{background:var(--rd)}.kpi.a::after{background:var(--am)}.kpi.c::after{background:var(--cr)}
+.mat-row{display:grid;grid-template-columns:90px 1fr 92px;gap:10px;align-items:center;margin-bottom:8px}
+.mat-row b{font-size:13px}
+.mat-row .lv{font-size:12px;text-align:center;padding:3px 0;border-radius:7px;background:var(--panel2)}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th,td{padding:8px 8px;border-bottom:1px solid var(--line);text-align:right;vertical-align:top}
+th{color:var(--mu);font-weight:600;font-size:12px;background:var(--bg2);position:sticky;top:0}
+.tw{overflow-x:auto;border:1px solid var(--line);border-radius:12px}
+.num{direction:ltr;text-align:left;font-variant-numeric:tabular-nums;white-space:nowrap}
+.rmx td,.rmx th{text-align:center;padding:9px 6px}
+.rmx td.hit{outline:2px solid #fff;outline-offset:-2px;font-weight:700;box-shadow:0 0 18px rgba(255,255,255,.25)}
+.verdict{border-radius:12px;padding:14px;border:1px solid var(--line2);display:flex;gap:12px;align-items:flex-start}
+.verdict .big{font-size:18px;font-weight:700}
+.verdict.g{background:var(--grs);border-color:rgba(34,197,94,.4)}
+.verdict.r{background:var(--rds);border-color:rgba(240,82,82,.4)}
+.verdict.a{background:var(--ams);border-color:rgba(245,165,36,.4)}
+.bra{display:flex;flex-direction:column;gap:6px}
+.bra .q{display:flex;align-items:center;gap:8px;background:var(--bg2);border:1px solid var(--line);border-radius:10px;padding:7px 10px;font-size:13px}
+.bra .q span{flex:1}
+.yn{display:flex;gap:3px}
+.yn button{border:1px solid var(--line2);background:none;color:var(--mu);border-radius:7px;padding:3px 10px;font:inherit;font-size:12px;cursor:pointer}
+.yn button.y.on{background:var(--rd);color:#fff;border-color:var(--rd)}
+.yn button.n.on{background:var(--panel2);color:var(--tx);border-color:var(--ac)}
+.yn button.y.on.good{background:var(--gr);border-color:var(--gr)}
+.funnel{display:flex;flex-direction:column;gap:6px;align-items:center}
+.funnel div{border-radius:9px;padding:8px;text-align:center;font-size:12.5px;font-weight:600;color:#fff}
+.pestle{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+@media(max-width:900px){.pestle{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:560px){.pestle{grid-template-columns:1fr}}
+.pc{background:var(--bg2);border:1px solid var(--line);border-radius:12px;padding:12px;font-size:13px}
+.pc .k{width:30px;height:30px;border-radius:9px;display:grid;place-items:center;font-weight:700;margin-bottom:6px;font-size:14px}
+.pc b{display:block;margin-bottom:4px}
+.pc p{margin:0;color:#c5cde0}
+.fair3{display:grid;grid-template-columns:1.2fr repeat(3,1fr);gap:6px;align-items:center;margin-bottom:6px}
+.fair3 .h{font-size:11px;color:var(--mu2);text-align:center}
+.fair3 b{font-size:12.5px;font-weight:600}
+.fair3 input{padding:6px 7px;font-size:12.5px;direction:ltr;text-align:center}
+.ledger{display:grid;grid-template-columns:1fr 1fr;border:1px solid var(--line2);border-radius:12px;overflow:hidden}
+@media(max-width:640px){.ledger{grid-template-columns:1fr}}
+.ledger .col{padding:0}
+.ledger .hd{padding:10px 14px;font-weight:700;font-size:13.5px;display:flex;justify-content:space-between}
+.ledger .gcol .hd{background:rgba(34,197,94,.18);color:#86efac}
+.ledger .rcol .hd{background:rgba(240,82,82,.18);color:#fca5a5}
+.ledger .rcol{border-inline-start:1px solid var(--line2)}
+.ledger .ln{display:flex;justify-content:space-between;gap:10px;padding:9px 14px;border-bottom:1px dashed var(--line);font-size:13px}
+.ledger .ln:last-child{border-bottom:0}
+.ledger .ln .num{font-weight:600}
+.ledger .tot{font-weight:700;background:var(--bg2)}
+.net{margin-top:10px;padding:12px 14px;border-radius:12px;display:flex;justify-content:space-between;align-items:center;font-weight:700;border:1px solid var(--line2)}
+.opt{border:1px solid var(--line2);border-radius:14px;padding:14px;background:var(--bg2);position:relative;cursor:pointer;transition:.15s}
+.opt:hover{border-color:var(--ac)}
+.opt.rec{border-color:var(--gr);box-shadow:0 0 0 1px var(--gr),0 10px 30px rgba(34,197,94,.15)}
+.opt.sel{background:#16234a}
+.opt .ot{display:flex;align-items:center;gap:8px;font-weight:700;margin-bottom:6px}
+.opt .oi{width:32px;height:32px;border-radius:10px;display:grid;place-items:center;font-size:16px}
+.opt p{margin:0;font-size:12.5px;color:#c5cde0}
+.opt .rb{position:absolute;top:-10px;inset-inline-start:12px}
+.csf{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:10px}
+@media(max-width:1100px){.csf{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:560px){.csf{grid-template-columns:1fr}}
+.csfc{background:var(--bg2);border:1px solid var(--line);border-radius:12px;overflow:hidden}
+.csfc .ch{padding:9px 12px;font-weight:700;font-size:13px;display:flex;justify-content:space-between;align-items:center}
+.ctl{padding:9px 12px;border-top:1px solid var(--line);font-size:12.5px;cursor:pointer;display:flex;gap:8px}
+.ctl:hover{background:rgba(91,140,255,.06)}
+.ctl input{accent-color:var(--ac);margin-top:4px;flex:none}
+.ctl .cn{font-weight:600;color:var(--tx)}
+.ctl .mp{font-size:10.5px;color:var(--mu);direction:ltr;text-align:right;margin-top:3px;line-height:1.5}
+.ctl .cc{font-size:11px;color:var(--am)}
+.ctl.rel .cn::after{content:" ●";color:var(--gr);font-size:10px}
+.raci td,.raci th{text-align:center;padding:6px 4px;font-size:12px}
+.raci td:first-child,.raci th:first-child{text-align:right;min-width:210px;position:sticky;right:0;background:var(--panel);z-index:1}
+.raci th{writing-mode:horizontal-tb;min-width:62px}
+.rc{width:34px;height:28px;border-radius:7px;border:1px solid var(--line2);background:var(--bg2);color:var(--mu2);font:inherit;font-weight:700;cursor:pointer;font-size:12.5px}
+.rc.R{background:#1d4ed8;color:#fff;border-color:#1d4ed8}
+.rc.A{background:#e11d48;color:#fff;border-color:#e11d48}
+.rc.C{background:#b45309;color:#fff;border-color:#b45309}
+.rc.I{background:#334155;color:#e2e8f0;border-color:#475569}
+.lod{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+@media(max-width:640px){.lod{grid-template-columns:1fr}}
+.lod div{border-radius:12px;padding:12px;border:1px solid var(--line2);background:var(--bg2);font-size:12.5px}
+.lod b{display:block;font-size:13.5px;margin-bottom:4px}
+.memo{background:#0c1324;border:1px solid var(--line2);border-radius:12px;padding:16px;font-size:13.5px;white-space:pre-wrap;line-height:1.85}
+.memo .warn{display:block;border:1px solid rgba(225,29,72,.6);background:rgba(225,29,72,.12);color:#fecdd3;border-radius:9px;padding:9px 11px;margin:8px 0;font-weight:600}
+.dial{display:flex;align-items:center;gap:14px}
+.steps{margin:0;padding:0;list-style:none;counter-reset:s}
+.steps li{counter-increment:s;position:relative;padding:8px 38px 8px 6px;border-bottom:1px dashed var(--line);font-size:13px}
+.steps li::before{content:counter(s);position:absolute;right:4px;top:8px;width:24px;height:24px;border-radius:7px;background:var(--panel2);color:var(--ac2);display:grid;place-items:center;font-size:12px;font-weight:700}
+.steps li:last-child{border:0}
+.board{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:10px}
+@media(max-width:1100px){.board{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:560px){.board{grid-template-columns:1fr}}
+.bc{border-radius:14px;padding:14px;background:var(--bg2);border:1px solid var(--line);border-top:3px solid var(--ac);font-size:13px}
+.bc .bn{font-size:11px;color:var(--mu);font-weight:600}
+.bc b{display:block;margin:2px 0 6px;font-size:13.5px}
+.bc p{margin:0;color:#c5cde0}
+.cult{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+@media(max-width:900px){.cult{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:520px){.cult{grid-template-columns:1fr}}
+.cu{background:var(--bg2);border:1px solid var(--line);border-radius:12px;padding:12px;font-size:12.5px}
+.cu .t{display:flex;justify-content:space-between;align-items:center;font-weight:700;font-size:13px;margin-bottom:4px}
+.bar{height:8px;background:var(--panel2);border-radius:99px;overflow:hidden;position:relative;margin:8px 0 4px}
+.bar i{position:absolute;top:0;bottom:0;right:0;border-radius:99px}
+.cu p{margin:4px 0 0;color:var(--mu)}
+.plan td[contenteditable]{outline:none;min-width:120px}
+.plan td[contenteditable]:focus{background:rgba(91,140,255,.08);box-shadow:inset 0 0 0 1px var(--ac)}
+.plan input[type=number]{width:56px;padding:4px;text-align:center}
+.aibox{border:1px dashed rgba(167,139,250,.5);background:rgba(167,139,250,.07);border-radius:12px;padding:10px 12px;font-size:12.5px;color:#ddd6fe;display:none;margin-bottom:12px}
+.aibox.on{display:block}
+.ai-badge{display:none}
+body.has-ai .ai-badge{display:inline-flex}
+.muted{color:var(--mu)}
+.small{font-size:12px}
+.row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.hr{height:1px;background:var(--line);margin:12px 0}
+.toast{opacity:0;position:fixed;bottom:18px;left:50%;transform:translateX(-50%) translateY(80px);background:#1b2547;border:1px solid var(--line2);padding:10px 16px;border-radius:12px;box-shadow:var(--sh);transition:.25s;z-index:99;font-size:13px;max-width:90vw}
+.toast.on{opacity:1;transform:translateX(-50%) translateY(0)}
+.pyr text{font-family:inherit}
+.chartbox{position:relative;height:260px}
+.chartbox.sm{height:220px}
+.pill-ok{color:var(--gr)}.pill-bad{color:var(--rd)}
+.overlay{position:fixed;inset:0;background:rgba(5,8,16,.65);display:none;place-items:center;z-index:100;backdrop-filter:blur(3px)}
+.overlay.on{display:grid}
+.overlay .bx{background:var(--panel);border:1px solid var(--line2);border-radius:16px;padding:22px;max-width:420px;width:92vw;text-align:center;box-shadow:var(--sh)}
+.spin{width:38px;height:38px;border:3px solid var(--line2);border-top-color:var(--vi);border-radius:50%;animation:sp 0.9s linear infinite;margin:0 auto 12px}
+@keyframes sp{to{transform:rotate(360deg)}}
+.legend{display:flex;gap:12px;flex-wrap:wrap;font-size:11.5px;color:var(--mu);margin-top:8px}
+.legend i{display:inline-block;width:10px;height:10px;border-radius:3px;margin-inline-end:4px;vertical-align:middle}
+.modal{position:fixed;inset:0;background:rgba(5,8,16,.7);display:none;place-items:center;z-index:110;backdrop-filter:blur(4px);padding:12px}
+.modal.on{display:grid}
+.modal .bx{background:var(--panel);border:1px solid var(--line2);border-radius:16px;padding:20px;max-width:480px;width:100%;box-shadow:var(--sh);max-height:92vh;overflow:auto}
+.modal h3{margin:0 0 4px;font-size:16px}
+.note{border-radius:10px;padding:9px 11px;font-size:12.5px;margin:10px 0;line-height:1.7}
+.note.w{background:var(--ams);border:1px solid rgba(245,165,36,.4);color:#fde68a}
+.note.i{background:rgba(91,140,255,.1);border:1px solid rgba(91,140,255,.35);color:#c7d6ff}
+.keyrow{display:flex;gap:6px}.keyrow input{direction:ltr;text-align:left;font-family:ui-monospace,monospace;font-size:12.5px}
+@media(max-width:560px){.hide-sm{display:none}}
+.foot{color:var(--mu2);font-size:11.5px;text-align:center;margin-top:24px}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header class="top">
+  <div class="logo"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l8 4v6c0 5-3.4 8.6-8 10-4.6-1.4-8-5-8-10V6z"/><path d="M8.5 12.5l2.5 2.5 4.5-5"/></svg></div>
+  <div class="ttl"><h1>محرك القرارات للأمن السيبراني</h1><p>نظام دعم قرار لمواءمة الأمن مع الأعمال · منهجية Rational Cybersecurity for Business (Dan Blum) · قاعدة 80/20</p></div>
+  <div class="sp"></div>
+  <div class="status"><span class="dot" id="aiDot"></span><span id="aiStat">المحرك المحلي جاهز</span></div>
+  <button class="btn" id="btnSettings" title="إعدادات الذكاء الاصطناعي">⚙️<span class="hide-sm">الذكاء الاصطناعي</span></button>
+  <button class="btn pri" id="btnAnalyze"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M13 2L3 14h9l-1 8 10-12h-9z"/></svg>تحليل السيناريو</button>
+</header>
+
+<nav class="tabs" id="tabs">
+  <a href="#calibrate" data-t="calibrate"><span class="n">1</span>معايرة المؤسسة والحوكمة</a>
+  <a href="#triage" data-t="triage"><span class="n">2</span>السيناريو والفرز ARM</a>
+  <a href="#fair" data-t="fair"><span class="n">3</span>حاسبة Open FAIR والدفتر</a>
+  <a href="#treat" data-t="treat"><span class="n">4</span>المعالجة والضوابط و RACI</a>
+  <a href="#plan" data-t="plan"><span class="n">5</span>السياسات والثقافة و 90 يوماً</a>
+</nav>
+
+<!-- ============ TAB 1 ============ -->
+<section class="tab" id="t-calibrate">
+  <div class="grid g4" id="k1"></div>
+  <div class="grid g3" style="margin-top:14px">
+    <div class="card">
+      <h3><span class="ic">🏢</span>ملف المؤسسة</h3>
+      <label class="f"><span>اسم المؤسسة</span><input type="text" data-k="org.name"></label>
+      <label class="f"><span>حجم المؤسسة (الإيرادات السنوية)</span>
+        <div class="seg" data-seg="org.size"><button data-v="small">صغيرة &lt; 200M$</button><button data-v="medium">متوسطة 200M–2B$</button><button data-v="large">كبيرة &gt; 2B$</button></div></label>
+      <label class="f"><span>القطاع التنظيمي</span>
+        <select data-k="org.sector">
+          <option value="finance">الخدمات المالية والمصرفية</option><option value="health">الرعاية الصحية</option><option value="energy">الطاقة والمرافق</option><option value="retail">التجزئة والتجارة الإلكترونية</option><option value="tech">التقنية والبرمجيات (SaaS)</option><option value="manufacturing">التصنيع</option><option value="gov">الحكومة والقطاع العام</option><option value="education">التعليم</option>
+        </select></label>
+      <label class="f"><span>نطاق العمليات الجغرافي</span>
+        <select data-k="org.region"><option value="us">الولايات المتحدة</option><option value="eu">الاتحاد الأوروبي</option><option value="mena">الشرق الأوسط وشمال أفريقيا</option><option value="global">عالمي (متعدد الجنسيات)</option></select></label>
+      <label class="f"><span>بنية الكيان</span>
+        <select data-k="org.structure"><option value="single">كيان واحد قليل التشتت</option><option value="multi">وحدات أعمال متعددة (LOBs)</option><option value="conglo">مجموعة/متعددة الجنسيات عالية التشتت</option></select></label>
+      <label class="chk"><input type="checkbox" data-k="org.public">شركة مدرجة في البورصة</label>
+      <label class="chk"><input type="checkbox" data-k="org.critical">تملك أصولاً وطنية / بنية تحتية صناعية حرجة (OT/ICS)</label>
+    </div>
+    <div class="card">
+      <h3><span class="ic">⚙️</span>السياق التشغيلي والنضج</h3>
+      <label class="f"><span>تعقيد البنية التحتية</span><div class="seg" data-seg="org.complexity"><button data-v="low">منخفض</button><button data-v="medium">متوسط</button><button data-v="high">عالٍ</button></div></label>
+      <label class="f"><span>مستوى الضغط الأمني (التهديدات والرقابة)</span><div class="seg" data-seg="org.pressure"><button data-v="low">منخفض</button><button data-v="medium">متوسط</button><button data-v="high">عالٍ</button></div></label>
+      <div class="hr"></div>
+      <div class="small muted" style="margin-bottom:8px">مستوى النضج (1.0 – 5.0) عبر المحاور الثلاثة</div>
+      <div class="mat-row"><b>الأفراد</b><input type="range" min="1" max="5" step="0.5" data-k="org.mPeople"><span class="lv" id="lvP"></span></div>
+      <div class="mat-row"><b>العمليات</b><input type="range" min="1" max="5" step="0.5" data-k="org.mProcess"><span class="lv" id="lvR"></span></div>
+      <div class="mat-row"><b>التكنولوجيا</b><input type="range" min="1" max="5" step="0.5" data-k="org.mTech"><span class="lv" id="lvT"></span></div>
+      <div class="hr"></div>
+      <label class="f"><span>شهية المخاطر: أقصى خسارة سنوية مقبولة لسيناريو واحد ($)</span><input type="number" step="10000" data-k="org.appetite"></label>
+    </div>
+    <div class="card">
+      <h3><span class="ic">🕸️</span>رادار النضج</h3>
+      <div class="chartbox sm"><canvas id="cRadar"></canvas></div>
+      <div class="small muted" style="margin-top:6px">الهدف المقترح خلال 12 شهراً: +0.5 إلى +1.0 على كل محور، مع التركيز على المحور الأضعف.</div>
+    </div>
+  </div>
+  <div class="grid g2" style="margin-top:14px">
+    <div class="card">
+      <h3><span class="ic">🌳</span>شجرة قرار نموذج الحوكمة<span class="tag b" id="govTag"></span></h3>
+      <div id="govTree"></div>
+      <div id="govNote" class="small" style="margin-top:8px;color:#c5cde0"></div>
+    </div>
+    <div class="card">
+      <h3><span class="ic">⚖️</span>خريطة الامتثال التلقائية</h3>
+      <div class="sub">مستنتجة من القطاع والنطاق الجغرافي والإدراج وطبيعة الأصول.</div>
+      <div id="compl"></div>
+    </div>
+  </div>
+  <div class="card" style="margin-top:14px">
+    <h3><span class="ic">📊</span>تحليل باريتو للأولويات الست (80/20) — مُعايَر لمؤسستك</h3>
+    <div class="sub">الأولويات ليست قائمة مرتبة ثابتة؛ يعيد النظام وزنها وفق الحجم والتعقيد والضغط الأمني والنضج. الأعمدة الواقعة ضمن خط 80% هي نطاق التركيز.</div>
+    <div class="chartbox"><canvas id="cPareto"></canvas></div>
+  </div>
+</section>
+
+<!-- ============ TAB 2 ============ -->
+<section class="tab" id="t-triage">
+  <div class="aibox" id="aiSummary"></div>
+  <div class="grid g3">
+    <div class="card s2">
+      <h3><span class="ic">📝</span>وصف السيناريو<span class="tag b tag" id="scTypeTag"></span></h3>
+      <div class="row" style="margin-bottom:8px">
+        <select id="preset" style="max-width:340px"><option value="">— اختر سيناريو جاهزاً أو اكتب سيناريوك —</option></select>
+      </div>
+      <textarea data-k="scen.text" placeholder="صف المشكلة أو التهديد: ما الأصل المتأثر؟ ما الذي اكتُشف؟ من المورد؟ ما أثره على العمليات؟"></textarea>
+      <div class="row" style="margin-top:10px">
+        <button class="btn pri sm" id="btnAnalyze2">⚡ تحليل وتوليد المخرجات لكل التبويبات</button>
+        <label class="chk" style="margin:0"><input type="checkbox" id="aiFair" checked>اسمح للذكاء الاصطناعي باقتراح نطاقات FAIR</label>
+      </div>
+    </div>
+    <div class="card">
+      <h3><span class="ic">🔻</span>قمع الفرز الرشيق</h3>
+      <div class="funnel" id="funnel"></div>
+      <div class="small muted" style="margin-top:8px">إجراءات التشغيل القياسية تصفّي نحو 90% من المشكلات؛ لا يُصعَّد للتحليل الكمي إلا ما يتجاوز النافذة الزمنية أو شهية المخاطر.</div>
+    </div>
+  </div>
+
+  <div class="card" style="margin-top:14px">
+    <h3><span class="ic">🧭</span>تحليل السياق التجاري PESTLE</h3>
+    <div class="pestle" id="pestle"></div>
+  </div>
+
+  <div class="grid g3" style="margin-top:14px">
+    <div class="card">
+      <h3><span class="ic">🗂️</span>ملف مخاطر الأصل (ARP) — في دقائق</h3>
+      <label class="f"><span>اسم الأصل / النظام</span><input type="text" data-k="asset.name"></label>
+      <label class="f"><span>تصنيف البيانات</span><select data-k="asset.cls"><option value="0">عامة</option><option value="1">داخلية</option><option value="2">سرية</option><option value="3">مقيدة / منظمة</option></select></label>
+      <label class="f"><span>الأهمية للأعمال</span><select data-k="asset.crit"><option value="1">داعمة</option><option value="2">مهمة</option><option value="3">حيوية لعملية مدرة للدخل</option><option value="4">حرجة للمهمة / سلامة</option></select></label>
+      <div class="grid g2" style="gap:8px">
+        <label class="f"><span>عدد السجلات</span><input type="number" data-k="asset.records"></label>
+        <label class="f"><span>قيمة السجل ($)</span><input type="number" data-k="asset.recValue"></label>
+      </div>
+      <label class="f"><span>الإيرادات اليومية المعتمدة على الأصل ($)</span><input type="number" step="1000" data-k="asset.revDay"></label>
+      <label class="chk"><input type="checkbox" data-k="asset.regulated">يحتوي بيانات منظمة (شخصية/مالية/صحية)</label>
+      <label class="chk"><input type="checkbox" data-k="asset.internet">مكشوف على الإنترنت</label>
+      <div id="arpOut" style="margin-top:8px"></div>
+    </div>
+    <div class="card">
+      <h3><span class="ic">⏱️</span>مصفوفة نافذة المعالجة (CHML)</h3>
+      <label class="f"><span>شدة المشكلة</span><div class="seg" data-seg="scen.sev"><button data-v="C">حرج</button><button data-v="H">عالٍ</button><button data-v="M">متوسط</button><button data-v="L">منخفض</button></div></label>
+      <div class="tw"><table class="rmx" id="rmx"></table></div>
+      <label class="f" style="margin-top:10px"><span>الزمن المقدّر للإغلاق عبر SOP (أيام)</span><input type="number" data-k="scen.sopDays"></label>
+      <div id="sopVerdict"></div>
+    </div>
+    <div class="card">
+      <h3><span class="ic">✅</span>التقييم الخفيف الثنائي (BRA)<span class="tag" id="braTag"></span></h3>
+      <div class="bra" id="bra"></div>
+      <div id="braOut" style="margin-top:10px"></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ TAB 3 ============ -->
+<section class="tab" id="t-fair">
+  <div class="grid g5" id="k3"></div>
+  <div class="grid g3" style="margin-top:14px">
+    <div class="card">
+      <h3><span class="ic">🎯</span>مدخلات Open FAIR (ISO 31000)</h3>
+      <div class="sub">قيم ثلاثية (أدنى · الأرجح · أقصى) بتوزيع PERT. الخطر = تردد حدث الخسارة × حجم الخسارة.</div>
+      <div class="fair3"><span></span><span class="h">أدنى</span><span class="h">الأرجح</span><span class="h">أقصى</span></div>
+      <div class="fair3"><b>تردد حدث التهديد TEF (سنوياً)</b><input type="number" step="0.1" data-k="fair.tef.0"><input type="number" step="0.1" data-k="fair.tef.1"><input type="number" step="0.1" data-k="fair.tef.2"></div>
+      <div class="fair3"><b>احتمالية الفعل (%)</b><input type="number" data-k="fair.poa.0"><input type="number" data-k="fair.poa.1"><input type="number" data-k="fair.poa.2"></div>
+      <div class="fair3"><b>قدرة المهاجم TCap (مئين 0-100)</b><input type="number" data-k="fair.tcap.0"><input type="number" data-k="fair.tcap.1"><input type="number" data-k="fair.tcap.2"></div>
+      <div class="fair3"><b>قوة المقاومة RS (مئين 0-100)</b><input type="number" data-k="fair.rs.0"><input type="number" data-k="fair.rs.1"><input type="number" data-k="fair.rs.2"></div>
+      <div class="hr"></div>
+      <div class="fair3"><b>الخسارة الأولية لكل حدث ($)</b><input type="number" step="1000" data-k="fair.pl.0"><input type="number" step="1000" data-k="fair.pl.1"><input type="number" step="1000" data-k="fair.pl.2"></div>
+      <div class="fair3"><b>احتمال الخسارة الثانوية (%)</b><input type="number" data-k="fair.slef" style="grid-column:span 3"></div>
+      <div class="fair3"><b>الخسارة الثانوية: غرامات، دعاوى، سمعة ($)</b><input type="number" step="1000" data-k="fair.sl.0"><input type="number" step="1000" data-k="fair.sl.1"><input type="number" step="1000" data-k="fair.sl.2"></div>
+      <div class="hr"></div>
+      <div class="row"><label class="f" style="margin:0;flex:1"><span>عدد تكرارات مونت كارلو</span><select id="iters"><option>5000</option><option selected>10000</option><option>25000</option></select></label><button class="btn sm" id="btnRun" style="margin-top:18px">▶ تشغيل المحاكاة</button></div>
+      <div class="small muted" id="fairNote" style="margin-top:8px"></div>
+    </div>
+    <div class="card s2">
+      <h3><span class="ic">📉</span>منحنى تجاوز الخسارة (LEC) — الكامن مقابل المتبقي</h3>
+      <div class="chartbox"><canvas id="cLEC"></canvas></div>
+      <div class="legend"><span><i style="background:var(--rd)"></i>الخطر الكامن</span><span><i style="background:var(--gr)"></i>الخطر المتبقي بعد الضوابط المختارة</span><span><i style="background:var(--am)"></i>شهية المخاطر</span></div>
+      <div class="hr"></div>
+      <div class="grid g2">
+        <div><div class="small muted" style="margin-bottom:6px">توزيع الخسارة السنوية (ALE) — الكامن</div><div class="chartbox sm"><canvas id="cHist"></canvas></div></div>
+        <div><div class="small muted" style="margin-bottom:6px">عائد الاستثمار الأمني ROSI</div><div class="chartbox sm"><canvas id="cROSI"></canvas></div></div>
+      </div>
+    </div>
+  </div>
+  <div class="grid g2" style="margin-top:14px">
+    <div class="card">
+      <h3><span class="ic">📒</span>دفتر الأستاذ للمخاطر (سنوي)</h3>
+      <div class="ledger" id="ledger"></div>
+      <div class="net" id="net"></div>
+    </div>
+    <div class="card">
+      <h3><span class="ic">🧮</span>تفكيك النموذج</h3>
+      <div class="tw"><table id="fairTbl"></table></div>
+      <div class="small muted" style="margin-top:8px">تعدّل الضوابط المختارة في التبويب الرابع معاملات النموذج المتبقي تلقائياً (خفض TEF، رفع RS، خفض حجم الخسارة).</div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ TAB 4 ============ -->
+<section class="tab" id="t-treat">
+  <div class="card">
+    <h3><span class="ic">🧩</span>خيارات المعالجة الأربعة<span class="tag ai-badge" style="background:rgba(167,139,250,.15);border-color:rgba(167,139,250,.4);color:#ddd6fe">✦ مُعزّز بالذكاء الاصطناعي</span></h3>
+    <div class="grid g4" id="opts"></div>
+  </div>
+  <div class="grid g2" style="margin-top:14px">
+    <div class="card">
+      <h3><span class="ic">🖋️</span><span id="memoTitle">مذكرة قبول الخطر الرسمي</span></h3>
+      <div class="row" style="margin-bottom:8px"><div class="seg" id="memoSeg" style="flex:1"><button data-v="accept" class="on">قبول الخطر</button><button data-v="exception">استثناء مؤقت</button></div><button class="btn sm" data-copy="memo">نسخ</button></div>
+      <div class="memo" id="memo"></div>
+    </div>
+    <div class="card">
+      <h3><span class="ic">🛡️</span>المرونة السيبرانية والاستجابة</h3>
+      <div class="grid g2" style="gap:10px;margin-bottom:10px" id="dwellK"></div>
+      <div class="small" style="font-weight:700;margin:6px 0">تقليل زمن بقاء المهاجم (Dwell Time)</div>
+      <ol class="steps" id="dwellSteps"></ol>
+      <div class="small" style="font-weight:700;margin:10px 0 6px">خطة استجابة CSIRT (قانونية · علاقات عامة · موارد بشرية)</div>
+      <ol class="steps" id="csirt"></ol>
+      <div class="small" style="font-weight:700;margin:10px 0 6px">استمرارية الأعمال والتعافي (BC/DR) وفق تحليل أثر الأعمال BIA</div>
+      <div id="bcdr"></div>
+    </div>
+  </div>
+  <div class="card" style="margin-top:14px">
+    <h3><span class="ic">🧱</span>الضوابط عبر وظائف NIST CSF الخمس<span class="tag" id="ctlSum"></span></h3>
+    <div class="sub">● = مرتبط مباشرة بنوع السيناريو. اختيار الضابط يحدّث الخطر المتبقي وROSI في التبويب الثالث. المراجع: ISO 27001:2022 · NIST 800-53 r5 · COBIT 5 · CSA CCM v4.</div>
+    <div class="csf" id="csf"></div>
+  </div>
+  <div class="card" style="margin-top:14px">
+    <h3><span class="ic">👥</span>مصفوفة RACI التفاعلية<span class="tag" id="raciChk"></span></h3>
+    <div class="sub">انقر على أي خلية للتبديل بين R ← A ← C ← I ← فارغ. القاعدة: مُساءَل (A) واحد فقط لكل نشاط.</div>
+    <div class="tw" style="max-height:none"><table class="raci" id="raci"></table></div>
+    <div class="legend"><span><i style="background:#1d4ed8"></i>R منفّذ</span><span><i style="background:#e11d48"></i>A مُساءَل</span><span><i style="background:#b45309"></i>C مستشار</span><span><i style="background:#475569"></i>I مُبلَّغ</span></div>
+    <div class="hr"></div>
+    <div class="small" style="font-weight:700;margin-bottom:8px">نموذج خطوط الدفاع الثلاثة</div>
+    <div class="lod">
+      <div style="border-color:rgba(91,140,255,.5)"><b>🛠️ الخط الأول</b>عمليات تقنية المعلومات والأمن، وقادة وحدات الأعمال مالكو المخاطر: تشغيل الضوابط يومياً، إدارة الثغرات، الاستجابة الأولى.</div>
+      <div style="border-color:rgba(245,165,36,.5)"><b>📐 الخط الثاني</b>إدارة المخاطر (CRO) والامتثال وضمان الجودة، ومكتب CISO في دوره الرقابي: وضع الأطر، مراقبة شهية المخاطر، تحدي القرارات.</div>
+      <div style="border-color:rgba(34,197,94,.5)"><b>🔍 الخط الثالث</b>التدقيق الداخلي المستقل الذي يرفع تقاريره إلى لجنة التدقيق بمجلس الإدارة: ضمان موضوعي لفعالية الخطين الأول والثاني.</div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ TAB 5 ============ -->
+<section class="tab" id="t-plan">
+  <div class="grid g2">
+    <div class="card">
+      <h3><span class="ic">🔺</span>هرم السياسات — الوثيقة المطلوبة</h3>
+      <div id="pyr"></div>
+      <div id="pyrNote" class="small" style="margin-top:8px;color:#c5cde0"></div>
+    </div>
+    <div class="card">
+      <h3><span class="ic">💬</span>رسالة التوعية الإيجابية<span class="tag g">يمكننا القيام بذلك</span><button class="btn sm tag" data-copy="aware" style="margin-inline-start:auto">نسخ</button></h3>
+      <div class="memo" id="aware" style="white-space:pre-wrap"></div>
+      <div class="small muted" style="margin-top:8px">مبنية على الكفاءة الذاتية (Self-Efficacy) والإثبات الاجتماعي الإيجابي، دون تخويف أو لوم.</div>
+    </div>
+  </div>
+  <div class="card" style="margin-top:14px">
+    <h3><span class="ic">🌱</span>مقاييس الثقافة الأمنية الستة</h3>
+    <div class="cult" id="cult"></div>
+  </div>
+  <div class="card" style="margin-top:14px">
+    <h3><span class="ic">🏛️</span>موجز مجلس الإدارة — 5 بطاقات<button class="btn sm tag" data-copy="board" style="margin-inline-start:auto">نسخ الموجز</button></h3>
+    <div class="board" id="board"></div>
+  </div>
+  <div class="card" style="margin-top:14px">
+    <h3><span class="ic">🗓️</span>ورقة عمل خطة النجاح — 90 يوماً<span style="margin-inline-start:auto" class="row"><button class="btn sm" id="btnCsv">⬇ تصدير CSV</button><button class="btn sm" data-copy="plan">نسخ كجدول</button></span></h3>
+    <div class="sub">الخلايا قابلة للتعديل مباشرة. ضع علامة على الأولويات داخل النطاق وقيّم الوضع الحالي (1–5).</div>
+    <div class="tw"><table class="plan" id="planTbl"></table></div>
+    <div class="hr"></div>
+    <div class="small" style="font-weight:700;margin-bottom:8px">أصحاب المصلحة وخطة التواصل</div>
+    <div class="tw"><table class="plan" id="stakeTbl"></table></div>
+  </div>
+</section>
+
+<div class="foot">الأرقام تقديرات نمذجة احتمالية لدعم القرار وليست تنبؤات مؤكدة · المنهجية مستندة إلى كتاب Rational Cybersecurity for Business (Dan Blum, Apress 2020, CC BY 4.0)</div>
+</div>
+
+<div class="overlay" id="ov"><div class="bx"><div class="spin"></div><b id="ovT">يحلل الذكاء الاصطناعي السيناريو…</b><div class="small muted">قد يستغرق 20–60 ثانية</div><div class="small muted" style="margin-top:6px">PESTLE · نطاقات FAIR · المعالجة · المرونة · السياسات · موجز المجلس</div><button class="btn sm" id="ovCancel" style="margin-top:14px">إلغاء والاكتفاء بالمحرك المحلي</button></div></div>
+<div class="modal" id="setM"><div class="bx">
+ <h3>⚙️ إعدادات الذكاء الاصطناعي</h3>
+ <div class="small muted">استخدم مفتاح Claude API الخاص بك لتفعيل التحليل الذكي على هذا الموقع.</div>
+ <div class="note i" id="envNote"></div>
+ <label class="f"><span>مفتاح Claude API</span><div class="keyrow"><input type="password" id="kIn" placeholder="sk-ant-..." autocomplete="off" spellcheck="false"><button class="btn sm" id="kShow" type="button">👁</button></div></label>
+ <label class="f"><span>النموذج</span><select id="kModel"><option value="claude-sonnet-5-5">Claude Sonnet 5.5 — متوازن (موصى به)</option><option value="claude-opus-5-5">Claude Opus 5.5 — الأعلى جودة</option><option value="claude-haiku-5-5">Claude Haiku 5.5 — الأسرع والأرخص</option></select></label>
+ <label class="chk"><input type="checkbox" id="kRemember">احفظ المفتاح على هذا الجهاز (وإلا يُحذف عند إغلاق الصفحة)</label>
+ <div class="note w">🔒 مفتاحك يبقى في متصفحك ويُرسل مباشرة إلى Anthropic فقط، ولا يمر عبر أي خادم آخر. كل تحليل يُحتسب على حسابك في Claude API. ننصح بتحديد سقف للإنفاق من لوحة Anthropic، وعدم حفظ المفتاح على جهاز مشترك.</div>
+ <div class="small" id="kStat" style="min-height:20px;margin-bottom:8px"></div>
+ <div class="row" style="justify-content:space-between">
+  <div class="row"><button class="btn pri sm" id="kSave">حفظ</button><button class="btn sm" id="kTest">اختبار الاتصال</button></div>
+  <div class="row"><button class="btn sm" id="kClear">حذف المفتاح</button><button class="btn sm" id="kClose">إغلاق</button></div>
+ </div>
+ <div class="small muted" style="margin-top:10px">احصل على مفتاح من <a href="https://console.anthropic.com/settings/keys" target="_blank" rel="noopener">console.anthropic.com</a></div>
+</div></div>
+<div class="toast" id="toast"></div>
+
+<script>
+"use strict";
+/* ===================== Utilities ===================== */
+const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
+const clamp=(x,a,b)=>Math.max(a,Math.min(b,x));
+const esc=s=>String(s??"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+function money(v,full){ if(!isFinite(v))return "—"; const a=Math.abs(v),s=v<0?"-":"";
+  if(full) return s+"$"+Math.round(a).toLocaleString("en-US");
+  if(a>=1e9)return s+"$"+(a/1e9).toFixed(2)+"B"; if(a>=1e6)return s+"$"+(a/1e6).toFixed(2)+"M"; if(a>=1e3)return s+"$"+(a/1e3).toFixed(0)+"K"; return s+"$"+Math.round(a);}
+const pct=v=>(v*100).toFixed(0)+"%";
+function toast(m){const t=$("#toast");t.textContent=m;t.classList.add("on");clearTimeout(toast._t);toast._t=setTimeout(()=>t.classList.remove("on"),2600);}
+function addDays(n){const d=new Date();d.setDate(d.getDate()+n);return d.toISOString().slice(0,10);}
+function getP(o,p){return p.split(".").reduce((a,k)=>a?.[k],o);}
+function setP(o,p,v){const ks=p.split(".");let a=o;ks.slice(0,-1).forEach(k=>a=a[k]);a[ks.at(-1)]=v;}
+
+/* ===================== Reference data ===================== */
+const MAT=["","مبدئي","قيد التطوير","محدد","مُدار","مُحسّن"];
+const matLabel=v=>MAT[Math.round(v)]||"";
+const SIZE={small:{m:.3,c:.4,app:250000,name:"صغيرة"},medium:{m:1,c:1,app:2000000,name:"متوسطة"},large:{m:4,c:2.8,app:10000000,name:"كبيرة"}};
+const LVL={low:"منخفض",medium:"متوسط",high:"عالٍ"};
+const SECTOR={finance:"الخدمات المالية",health:"الرعاية الصحية",energy:"الطاقة والمرافق",retail:"التجزئة",tech:"التقنية",manufacturing:"التصنيع",gov:"الحكومة",education:"التعليم"};
+const LAWS={
+ SOX:"ضوابط التقارير المالية للشركات المدرجة الأمريكية",GDPR:"حماية البيانات الشخصية في الاتحاد الأوروبي",CCPA:"خصوصية المستهلكين في كاليفورنيا",
+ FRCP:"قواعد الاكتشاف الإلكتروني والاحتفاظ بالأدلة في التقاضي الأمريكي","GLBA":"حماية البيانات المالية للعملاء",
+ "PCI DSS":"أمن بيانات بطاقات الدفع","Basel 3":"إدارة المخاطر التشغيلية ورأس المال المصرفي",HIPAA:"خصوصية وأمن المعلومات الصحية",
+ "NERC CIP":"حماية البنية التحتية الحرجة لشبكات الكهرباء",NIS:"أمن الشبكات وأنظمة المعلومات للخدمات الأساسية (NIS2)"};
+const SCTYPES={
+ ransomware:{n:"برمجيات فدية",kw:/فدية|ransom|تشفير الملفات|lockbit|encrypt/i,tef:[.5,2,6],tcap:[40,65,90],poa:[60,80,95],pl:[400e3,1.5e6,6e6],slef:60,sl:[200e3,800e3,4e6],policy:3,topic:"ransom",sev:"C"},
+ cloud:{n:"سوء تهيئة سحابية",kw:/سحاب|cloud|s3|bucket|azure|aws|gcp|تهيئة|misconfig/i,tef:[1,3,10],tcap:[20,45,75],poa:[50,70,90],pl:[100e3,400e3,2e6],slef:70,sl:[300e3,1.2e6,6e6],policy:2,topic:"cloud",sev:"H"},
+ thirdparty:{n:"مخاطر طرف ثالث / مورد",kw:/مورد|طرف ثالث|vendor|supplier|third|توريد|مزود خدمة/i,tef:[.5,1.5,4],tcap:[35,60,85],poa:[50,70,90],pl:[150e3,600e3,3e6],slef:60,sl:[250e3,1e6,5e6],policy:2,topic:"vendor",sev:"H"},
+ vuln:{n:"ثغرة تقنية / ترقيع",kw:/ثغرة|vulnerab|cve|openssl|patch|ترقيع|log4j|تحديث أمني/i,tef:[2,6,20],tcap:[30,55,85],poa:[40,60,85],pl:[50e3,250e3,1.5e6],slef:30,sl:[100e3,400e3,2e6],policy:4,topic:"patch",sev:"H"},
+ insider:{n:"إساءة صلاحيات / تهديد داخلي",kw:/داخلي|insider|privileged|صلاحيات|مسؤول نظام|admin|break glass|حساب مميز/i,tef:[.3,1,3],tcap:[50,70,90],poa:[30,50,75],pl:[100e3,500e3,3e6],slef:50,sl:[150e3,700e3,3e6],policy:4,topic:"breakglass",sev:"H"},
+ phishing:{n:"تصيد احتيالي / اختراق بريد الأعمال",kw:/تصيد|phish|bec|بريد|email|احتيال|تحويل مالي/i,tef:[6,20,60],tcap:[15,35,65],poa:[70,90,99],pl:[20e3,120e3,900e3],slef:20,sl:[50e3,200e3,1e6],policy:5,topic:"phish",sev:"M"},
+ privacy:{n:"خصوصية بيانات العملاء",kw:/خصوصية|بيانات العملاء|بيانات شخصية|gdpr|personal data|privacy|تسريب/i,tef:[.5,2,5],tcap:[20,45,75],poa:[40,60,85],pl:[50e3,200e3,1e6],slef:80,sl:[300e3,1.5e6,8e6],policy:1,topic:"privacy",sev:"H"},
+ byod:{n:"العمل عن بعد / BYOD",kw:/عن بعد|byod|remote|أجهزة شخصية|vpn|منزل/i,tef:[2,6,15],tcap:[15,35,60],poa:[50,70,90],pl:[20e3,100e3,600e3],slef:30,sl:[50e3,250e3,1.5e6],policy:2,topic:"byod",sev:"M"},
+ general:{n:"سيناريو عام",kw:/$^/,tef:[1,3,8],tcap:[25,50,80],poa:[50,70,90],pl:[80e3,350e3,2e6],slef:40,sl:[100e3,500e3,2.5e6],policy:2,topic:"general",sev:"M"}
+};
+const PRESETS=[
+ {t:"ransomware",n:"برمجيات فدية تستهدف نظام ERP",text:"رصد فريق العمليات محاولات وصول مشبوهة عبر بروتوكول RDP إلى خوادم نظام تخطيط الموارد (ERP) الذي يدير الفوترة وسلسلة التوريد، مع مؤشرات على حملة فدية نشطة في القطاع. النسخ الاحتياطية متصلة بالشبكة ذاتها ولم تُختبر استعادتها منذ 9 أشهر.",a:{name:"نظام ERP للفوترة وسلسلة التوريد",cls:"2",crit:"4",records:250000,recValue:120,revDay:900000,regulated:true,internet:false}},
+ {t:"vuln",n:"ثغرة OpenSSL على 60 خادم ويب",text:"أعلن المورد عن ثغرة جديدة حرجة في مكتبة OpenSSL تؤثر على 60 خادم ويب يخدم بوابة العملاء، وتتوفر أداة استغلال علنية. تحتاج نافذة صيانة لكل خادم، ويقدّر الفريق أن الترقيع الكامل وفق الإجراءات القياسية يستغرق 21 يوماً.",a:{name:"بوابة العملاء الإلكترونية (60 خادم ويب)",cls:"2",crit:"3",records:400000,recValue:90,revDay:350000,regulated:true,internet:true},sop:21},
+ {t:"thirdparty",n:"مورد سحابي لمعالجة الرواتب بلا ضمانات",text:"تريد إدارة الموارد البشرية التعاقد مع مورد SaaS ناشئ لمعالجة الرواتب وبيانات الموظفين. المورد لا يملك شهادة SOC 2 أو ISO 27001، ويرفض بند الإخطار بالحوادث خلال 72 ساعة، ويستضيف البيانات خارج نطاق الولاية القضائية.",a:{name:"بيانات الرواتب والموظفين",cls:"3",crit:"2",records:12000,recValue:250,revDay:0,regulated:true,internet:true}},
+ {t:"cloud",n:"حاوية تخزين سحابية مكشوفة",text:"اكتشف فحص إدارة الوضع السحابي (CSPM) أن حاوية تخزين تحتوي نسخ تصدير من قاعدة بيانات العملاء متاحة للعامة منذ 3 أسابيع بسبب سوء تهيئة في خط النشر (CI/CD).",a:{name:"حاوية تصدير بيانات العملاء",cls:"3",crit:"2",records:800000,recValue:150,revDay:50000,regulated:true,internet:true}},
+ {t:"insider",n:"حسابات مسؤولين مشتركة بلا وصول طارئ منضبط",text:"يستخدم فريق قواعد البيانات حساب مسؤول مشتركاً بكلمة مرور ثابتة للوصول إلى قاعدة بيانات المعاملات، ولا توجد عملية Break Glass موثقة أو مراقبة للجلسات المميزة.",a:{name:"قاعدة بيانات المعاملات الأساسية",cls:"3",crit:"4",records:2000000,recValue:60,revDay:1200000,regulated:true,internet:false}},
+ {t:"phishing",n:"احتيال اختراق بريد الأعمال (BEC)",text:"تلقت الإدارة المالية رسائل تنتحل صفة مدير تنفيذي تطلب تحويلات عاجلة إلى حساب مورد جديد. لا يوجد تحقق ثنائي القناة للتغييرات البنكية، ونسبة النقر في آخر محاكاة تصيد 14%.",a:{name:"عمليات الحسابات الدائنة والتحويلات",cls:"2",crit:"3",records:5000,recValue:50,revDay:200000,regulated:false,internet:true}},
+ {t:"byod",n:"توسع العمل عن بعد والأجهزة الشخصية",text:"تطلب وحدة المبيعات السماح باستخدام الهواتف والحواسيب الشخصية للوصول إلى نظام CRM والبريد، دون إدارة أجهزة (MDM) أو وصول مشروط.",a:{name:"نظام إدارة علاقات العملاء CRM",cls:"2",crit:"3",records:150000,recValue:80,revDay:400000,regulated:true,internet:true}},
+ {t:"privacy",n:"جمع بيانات عملاء زائدة في تطبيق جديد",text:"يجمع تطبيق الولاء الجديد الموقع الجغرافي الدقيق وتاريخ الميلاد وصور الهوية لكل عميل، رغم أن الغرض التسويقي لا يتطلب ذلك، ولا توجد سياسة احتفاظ أو حذف.",a:{name:"تطبيق برنامج الولاء",cls:"3",crit:"2",records:1500000,recValue:40,revDay:120000,regulated:true,internet:true}}
+];
+// control library: base cost (medium org, $/yr), effects, relevant types
+const CTL=[
+ {id:"inv",f:"ID",n:"جرد الأصول وملفات مخاطر الأصول (CMDB/ARM)",iso:"A.5.9",nist:"CM-8",cobit:"BAI09",ccm:"DCS-06",cost:60e3,tef:0,rs:4,lm:.05,sl:0,t:["vuln","cloud","general","ransomware"]},
+ {id:"tprm",f:"ID",n:"تقييم مخاطر الأطراف الثالثة وبنود العقود",iso:"A.5.19–5.21",nist:"SR-6, SA-9",cobit:"APO10",ccm:"STA-08",cost:70e3,tef:.25,rs:6,lm:.05,sl:.15,t:["thirdparty","cloud"]},
+ {id:"pbd",f:"ID",n:"تقليل البيانات والخصوصية بالتصميم (تعديل عملية الأعمال)",iso:"A.5.34",nist:"PT-2, SA-8",cobit:"DSS06",ccm:"DSP-07",cost:45e3,tef:0,rs:0,lm:.35,sl:.4,t:["privacy","cloud","thirdparty"]},
+ {id:"mfa",f:"PR",n:"المصادقة متعددة العوامل والوصول المشروط",iso:"A.8.5",nist:"IA-2(1)",cobit:"DSS05.04",ccm:"IAM-14",cost:80e3,tef:.2,rs:15,lm:0,sl:0,t:["phishing","byod","ransomware","insider"]},
+ {id:"pam",f:"PR",n:"إدارة الوصول المميز PAM وعملية Break Glass",iso:"A.8.2, A.8.18",nist:"AC-6, AC-2(2)",cobit:"DSS05.04",ccm:"IAM-09",cost:150e3,tef:.15,rs:18,lm:.15,sl:0,t:["insider","ransomware"]},
+ {id:"patch",f:"PR",n:"إدارة الثغرات والترقيع بنوافذ زمنية CHML",iso:"A.8.8",nist:"RA-5, SI-2",cobit:"DSS05.07",ccm:"TVM-01",cost:90e3,tef:.1,rs:16,lm:0,sl:0,t:["vuln","ransomware"]},
+ {id:"cspm",f:"PR",n:"خط أساس للتهيئة الآمنة و CSPM",iso:"A.8.9",nist:"CM-6, CM-2",cobit:"BAI10",ccm:"IVS-04",cost:85e3,tef:.3,rs:12,lm:0,sl:0,t:["cloud","vuln"]},
+ {id:"enc",f:"PR",n:"التشفير ومنع تسرب البيانات DLP",iso:"A.8.24, A.8.12",nist:"SC-28, SC-8",cobit:"DSS06.06",ccm:"CEK-03",cost:110e3,tef:0,rs:6,lm:.25,sl:.35,t:["privacy","cloud","thirdparty","byod","insider"]},
+ {id:"seg",f:"PR",n:"التقسيم الشبكي والثقة المعدومة",iso:"A.8.22",nist:"SC-7, AC-4",cobit:"DSS05.02",ccm:"IVS-06",cost:130e3,tef:0,rs:10,lm:.3,sl:.1,t:["ransomware","insider","vuln"]},
+ {id:"mdm",f:"PR",n:"إدارة الأجهزة الطرفية MDM/UEM",iso:"A.8.1",nist:"AC-19, CM-7",cobit:"DSS05.03",ccm:"UEM-01",cost:60e3,tef:.2,rs:10,lm:.1,sl:.1,t:["byod"]},
+ {id:"devsec",f:"PR",n:"دمج الأمان في التطوير DevSecOps",iso:"A.8.25, A.8.28",nist:"SA-11, SA-15",cobit:"BAI03",ccm:"AIS-05",cost:95e3,tef:.15,rs:10,lm:0,sl:0,t:["cloud","vuln","privacy"]},
+ {id:"debt",f:"PR",n:"تبسيط البنية وتقليل الديون التقنية (إحالة الأنظمة القديمة)",iso:"A.8.32",nist:"SA-22",cobit:"APO03",ccm:"CCC-03",cost:120e3,tef:.1,rs:8,lm:.05,sl:0,t:["vuln","ransomware","general"]},
+ {id:"aware",f:"PR",n:"التوعية الإيجابية ومحاكاة التصيد",iso:"A.6.3",nist:"AT-2(3)",cobit:"APO07.03",ccm:"HRS-11",cost:40e3,tef:.35,rs:5,lm:0,sl:0,t:["phishing","byod","ransomware","insider","privacy"]},
+ {id:"pay",f:"PR",n:"التحقق ثنائي القناة للمدفوعات وتغيير الحسابات",iso:"A.5.14",nist:"AC-5, IA-11",cobit:"DSS06.03",ccm:"GRC-05",cost:15e3,tef:0,rs:0,lm:.6,sl:.2,t:["phishing"]},
+ {id:"edr",f:"DE",n:"كشف واستجابة النقاط الطرفية EDR/XDR",iso:"A.8.7",nist:"SI-3, SI-4",cobit:"DSS05.01",ccm:"UEM-09",cost:140e3,tef:0,rs:8,lm:.3,sl:.15,t:["ransomware","insider","byod","phishing"]},
+ {id:"siem",f:"DE",n:"المراقبة SIEM/UEBA والاصطياد الاستباقي",iso:"A.8.16",nist:"AU-6, SI-4",cobit:"DSS05.07",ccm:"LOG-05",cost:180e3,tef:0,rs:5,lm:.3,sl:.2,t:["insider","ransomware","cloud","thirdparty","general"]},
+ {id:"ir",f:"RS",n:"خطة الاستجابة للحوادث وأدلة CSIRT",iso:"A.5.24–5.26",nist:"IR-4, IR-8",cobit:"DSS02",ccm:"SEF-03",cost:55e3,tef:0,rs:0,lm:.2,sl:.3,t:["ransomware","privacy","cloud","thirdparty","general","insider","phishing"]},
+ {id:"ins",f:"RS",n:"التأمين السيبراني للطرف الأول والثالث (نقل)",iso:"A.5.31",nist:"PM-9",cobit:"APO12.06",ccm:"GRC-02",cost:120e3,tef:0,rs:0,lm:.35,sl:.5,t:["ransomware","privacy","thirdparty","cloud","phishing"]},
+ {id:"bkp",f:"RC",n:"نسخ احتياطية معزولة غير قابلة للتعديل",iso:"A.8.13",nist:"CP-9, CP-10",cobit:"DSS04.07",ccm:"BCR-08",cost:90e3,tef:0,rs:0,lm:.45,sl:.1,t:["ransomware","general"]},
+ {id:"bcdr",f:"RC",n:"اختبار BC/DR مبني على تحليل أثر الأعمال BIA",iso:"A.5.29, A.5.30",nist:"CP-2, CP-4",cobit:"DSS04",ccm:"BCR-02",cost:65e3,tef:0,rs:0,lm:.25,sl:.15,t:["ransomware","general","thirdparty"]}
+];
+const CSF={ID:{n:"تحديد Identify",c:"#5b8cff"},PR:{n:"حماية Protect",c:"#a78bfa"},DE:{n:"كشف Detect",c:"#f5a524"},RS:{n:"استجابة Respond",c:"#f05252"},RC:{n:"تعافٍ Recover",c:"#22c55e"}};
+const PRIOS=[
+ {k:"culture",n:"ثقافة أمنية صحية ونموذج حوكمة",s:"الثقافة والحوكمة"},
+ {k:"risk",n:"إدارة المخاطر بلغة الأعمال",s:"المخاطر بلغة الأعمال"},
+ {k:"baseline",n:"إرساء خط أساس للضوابط",s:"خط أساس الضوابط"},
+ {k:"simplify",n:"تبسيط وترشيد تقنية المعلومات والأمن",s:"التبسيط والترشيد"},
+ {k:"access",n:"حوكمة الوصول دون إبطاء الأعمال",s:"حوكمة الوصول"},
+ {k:"resil",n:"المرونة: الكشف والاستجابة والتعافي",s:"المرونة السيبرانية"}
+];
+const ROLES=["مجلس الإدارة","CEO","CISO","CRO","CIO","قادة LOB","HR","القانونية","المالية","التدقيق الداخلي","فريق IR"];
+const ACTS=[
+ ["اعتماد شهية المخاطر وميثاق/سياسة الأمن العليا",["A","R","C","C","C","I","I","C","C","I",""]],
+ ["تحليل المخاطر الكمي (FAIR) للسيناريو",["","I","R","A","C","C","","C","C","I","C"]],
+ ["اختيار خيار المعالجة وتوقيع قبول الخطر",["I","C","R","C","C","A","","C","C","I",""]],
+ ["تنفيذ الضوابط التقنية وخط الأساس",["","","A","C","R","C","","","I","I","C"]],
+ ["إدارة مخاطر الأطراف الثالثة وعقود SLA",["","","C","C","R","A","","R","C","I",""]],
+ ["الاستجابة للحادث وتنسيق CSIRT",["I","I","A","I","C","C","C","C","I","","R"]],
+ ["التواصل الخارجي والإخطار التنظيمي",["I","A","C","C","","C","","R","I","I","C"]],
+ ["التدريب والتوعية وقياس الثقافة",["","I","A","","C","C","R","","","I",""]],
+ ["استمرارية الأعمال والتعافي BC/DR",["I","I","C","C","R","A","C","","C","I","C"]],
+ ["التدقيق المستقل على فعالية الضوابط",["A","I","C","C","C","I","","","","R",""]]
+];
+const PYR=[
+ {n:"ميثاق الأمن",d:"يوقعه CEO · يُراجع عند تغيير الاستراتيجية"},
+ {n:"السياسة العليا",d:"تحديث كل 3–5 سنوات"},
+ {n:"المعايير الإلزامية",d:"تحديث كل 2–4 سنوات"},
+ {n:"العمليات",d:"تحديث كل 1–3 سنوات"},
+ {n:"الإجراءات التفصيلية",d:"6 أشهر – 3 سنوات"},
+ {n:"الإرشادات",d:"تحديث كل 1–3 سنوات"}
+];
+const BRAQ=[
+ {q:"هل الأصل مكشوف على الإنترنت أو لشبكة غير موثوقة؟",w:2},
+ {q:"هل تتوفر أداة استغلال علنية أو حملات نشطة؟",w:2},
+ {q:"هل يمكن الاستغلال دون مصادقة أو بصلاحيات منخفضة؟",w:2},
+ {q:"هل يحتوي الأصل بيانات منظمة (شخصية/مالية/صحية)؟",w:2},
+ {q:"هل يتجاوز أثر التوقف 24 ساعة على عملية مدرة للدخل؟",w:2},
+ {q:"هل يمكن التحرك الجانبي إلى أصول حرجة أخرى؟",w:2},
+ {q:"هل يعتمد الأصل على طرف ثالث خارج سيطرتنا المباشرة؟",w:1},
+ {q:"هل يترتب على الاختراق إخطار تنظيمي إلزامي؟",w:1},
+ {q:"هل توجد ضوابط تعويضية فعالة (عزل، WAF، مراقبة)؟",w:-2,good:true},
+ {q:"هل سبق تحليل سيناريو مماثل ومعالجته بنجاح؟",w:-1,good:true}
+];
+const RMX={C:{C:2,H:7,M:30,L:90},H:{C:7,H:14,M:60,L:120},M:{C:14,H:30,M:90,L:180},L:{C:30,H:60,M:180,L:365}};
+const SEVN={C:"حرج",H:"عالٍ",M:"متوسط",L:"منخفض"};
+
+/* ===================== State ===================== */
+const DEF={
+ org:{name:"مجموعة النخبة القابضة",size:"medium",sector:"finance",region:"mena",structure:"multi",public:true,critical:false,complexity:"medium",pressure:"high",mPeople:2.5,mProcess:2.5,mTech:3,appetite:2000000},
+ scen:{text:"",type:"general",sev:"H",sopDays:10},
+ asset:{name:"",cls:"2",crit:"3",records:100000,recValue:100,revDay:200000,regulated:true,internet:true},
+ bra:[1,1,0,1,1,0,0,1,0,0],
+ fair:{tef:[1,3,8],poa:[50,70,90],tcap:[25,50,80],rs:[35,50,62],pl:[80e3,350e3,2e6],slef:40,sl:[100e3,500e3,2.5e6]},
+ ctl:[],raci:null,plan:null,stake:null,memo:"accept",chosen:null
+};
+let S=JSON.parse(JSON.stringify(DEF));
+let AI=null; // AI output
+let R={};    // computed results
+try{const sv=JSON.parse(localStorage.getItem("rcde_v1")||"null");if(sv&&sv.org)S=Object.assign(S,sv);}catch(e){}
+function save(){try{localStorage.setItem("rcde_v1",JSON.stringify(S));}catch(e){}}
+
+/* ===================== Binding ===================== */
+function bindAll(){
+ $$("[data-k]").forEach(el=>{
+  const k=el.dataset.k, v=getP(S,k);
+  if(el.type==="checkbox")el.checked=!!v; else el.value=v??"";
+  if(el._b)return; el._b=1;
+  el.addEventListener(el.type==="range"||el.tagName==="TEXTAREA"||el.type==="text"?"input":"change",()=>{
+    let val=el.type==="checkbox"?el.checked:(el.type==="number"||el.type==="range")?parseFloat(el.value):el.value;
+    if((el.type==="number"||el.type==="range")&&!isFinite(val))return;
+    setP(S,k,val); onChange(k);
+  });
+ });
+ $$("[data-seg]").forEach(sg=>{
+  const k=sg.dataset.seg; sg.querySelectorAll("button").forEach(b=>{
+   b.classList.toggle("on",b.dataset.v===getP(S,k));
+   if(!b._b){b._b=1;b.addEventListener("click",()=>{setP(S,k,b.dataset.v);bindAll();onChange(k);});}
+  });
+ });
+}
+let _deb;
+function onChange(k){
+ save();
+ if(k==="scen.text")return;
+ if(k==="org.size"){S.org.appetite=SIZE[S.org.size].app;bindAll();}
+ clearTimeout(_deb);_deb=setTimeout(()=>recompute(k.startsWith("fair")||k.startsWith("org")||k.startsWith("asset")),120);
+}
+
+/* ===================== Engine: Org & governance ===================== */
+function avgMat(){return (S.org.mPeople+S.org.mProcess+S.org.mTech)/3;}
+function governance(){
+ const single=S.org.structure==="single"&&S.org.complexity!=="high";
+ const m=avgMat();
+ if(single)return {k:"central",n:"مركزي",path:[0,"yes"],note:"كيان واحد قليل التشتت: قرارات الأمن تُدار من سلطة مركزية واحدة يرفع إليها مالكو الأنظمة، ما يحقق اتساقاً وسرعة بأقل تكلفة تنسيق."};
+ if(m>=3)return {k:"matrix",n:"مصفوفي",path:[0,"no",1,"yes"],note:"مؤسسة متعددة الوحدات بنضج كافٍ ("+m.toFixed(1)+"): CISO مركزي يضع السياسات والمعايير، مع مسؤولي أمن معيّنين في وحدات الأعمال بخطوط إبلاغ مزدوجة. يتطلب أدواراً واضحة وسياسات ناضجة لينجح."};
+ return {k:"decentral",n:"لامركزي",path:[0,"no",1,"no"],note:"التشتت عالٍ والنضج ("+m.toFixed(1)+") دون عتبة المصفوفي: تبقى المسؤولية التنفيذية لدى وحدات الأعمال، مع مجلس تنسيق أمني وسياسة عليا موحدة كخطوة أولى نحو النموذج المصفوفي عند بلوغ النضج 3."};
+}
+function compliance(){
+ const o=S.org, L=new Set();
+ const bySector={finance:["GLBA","PCI DSS","Basel 3"],health:["HIPAA","PCI DSS"],energy:["NERC CIP","NIS"],retail:["PCI DSS","CCPA"],tech:["CCPA","GDPR"],manufacturing:["NIS"],gov:["NIS"],education:["CCPA"]};
+ (bySector[o.sector]||[]).forEach(x=>L.add(x));
+ if(o.public)L.add("SOX");
+ if(o.region==="eu"||o.region==="global"){L.add("GDPR");if(["energy","health","finance","gov","manufacturing","tech"].includes(o.sector))L.add("NIS");}
+ if(o.region==="us"||o.region==="global"){L.add("FRCP");if(["retail","tech","health","finance"].includes(o.sector))L.add("CCPA");}
+ if(o.region==="mena"){L.delete("CCPA");if(o.sector==="tech"&&o.region==="mena")L.delete("GDPR");}
+ if(o.critical){L.add(o.sector==="energy"?"NERC CIP":"NIS");}
+ if(o.region!=="us"&&o.region!=="global"){L.delete("GLBA");}
+ return [...L];
+}
+function prioWeights(){
+ const o=S.org,sz={small:0,medium:1,large:2}[o.size],cx={low:0,medium:1,high:2}[o.complexity],pr={low:0,medium:1,high:2}[o.pressure];
+ const w={
+  culture: 10+(5-o.mPeople)*6+(o.structure!=="single"?6:0),
+  risk: 10+sz*5+(5-o.mProcess)*4+(compliance().length*1.5),
+  baseline: 10+(5-o.mTech)*6+pr*4,
+  simplify: 6+cx*9+sz*3,
+  access: 8+pr*4+(S.scen.type==="insider"||S.scen.type==="byod"?10:0)+cx*2,
+  resil: 10+pr*6+(o.critical?8:0)+(S.scen.type==="ransomware"?8:0)
+ };
+ const arr=PRIOS.map(p=>({...p,w:w[p.k]})).sort((a,b)=>b.w-a.w);
+ const tot=arr.reduce((a,b)=>a+b.w,0);let c=0;
+ arr.forEach(p=>{p.p=p.w/tot*100;c+=p.p;p.cum=c;});
+ let inScope=true;arr.forEach(p=>{p.focus=inScope;if(p.cum>=80)inScope=false;});
+ return arr;
+}
+
+/* ===================== Engine: Triage ===================== */
+function classify(text){
+ let best="general",bs=0;
+ for(const[k,v] of Object.entries(SCTYPES)){if(k==="general")continue;const m=(text.match(new RegExp(v.kw.source,"gi"))||[]).length;if(m>bs){bs=m;best=k;}}
+ return best;
+}
+function arp(){
+ const a=S.asset;let p=+a.cls+(+a.crit-1)+(a.regulated?1:0)+(a.internet?1:0)+(a.records>=100000?1:0);
+ const k=p>=7?"C":p>=5?"H":p>=3?"M":"L";
+ return {score:p,k,n:SEVN[k],dataValue:a.records*a.recValue,revYear:a.revDay*365};
+}
+function braScore(){
+ let s=0;BRAQ.forEach((q,i)=>{if(S.bra[i])s+=q.w;});
+ const k=s>=11?"C":s>=7?"H":s>=4?"M":"L";
+ const sign={L:"مدير الفريق التقني (SOP)",M:"قائد وحدة الأعمال — مالك الخطر",H:"مالك الخطر + CISO + CRO",C:"الرئيس التنفيذي / لجنة المخاطر بمجلس الإدارة"}[k];
+ return {s,k,n:SEVN[k],sign};
+}
+
+/* ===================== Engine: Monte Carlo FAIR ===================== */
+function rng(seed){return function(){seed|=0;seed=seed+0x6D2B79F5|0;let t=Math.imul(seed^seed>>>15,1|seed);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296;};}
+function gammaS(a,r){ // Marsaglia-Tsang
+ if(a<1)return gammaS(a+1,r)*Math.pow(r(),1/a);
+ const d=a-1/3,c=1/Math.sqrt(9*d);
+ for(;;){let x,v;do{const u1=r(),u2=r();x=Math.sqrt(-2*Math.log(u1||1e-12))*Math.cos(2*Math.PI*u2);v=1+c*x;}while(v<=0);v=v*v*v;const u=r();if(u<1-.0331*x*x*x*x||Math.log(u)<.5*x*x+d*(1-v+Math.log(v)))return d*v;}
+}
+function pert(r,[a,m,b]){a=+a;m=+m;b=+b;if(!(b>a))return m||a;m=clamp(m,a,b);const al=1+4*(m-a)/(b-a),be=1+4*(b-m)/(b-a);const x=gammaS(al,r),y=gammaS(be,r);return a+(b-a)*x/(x+y);}
+function poisson(r,l){if(l<=0)return 0;if(l>30)return Math.max(0,Math.round(l+Math.sqrt(l)*Math.sqrt(-2*Math.log(r()||1e-12))*Math.cos(2*Math.PI*r())));const L=Math.exp(-l);let k=0,p=1;do{k++;p*=r();}while(p>L);return k-1;}
+function ctlEffects(){
+ const sel=CTL.filter(c=>S.ctl.includes(c.id)),t=S.scen.type,m=SIZE[S.org.size].c;
+ let tef=1,rs=0,lm=1,sl=1,cost=0;
+ sel.forEach(c=>{const f=c.t.includes(t)?1:.35;tef*=1-c.tef*f;rs+=c.rs*f*.5;lm*=1-c.lm*f;sl*=1-c.sl*f;cost+=c.cost*m;});
+ return {tef:Math.max(tef,.2),rs:Math.min(rs,18),lm:Math.max(lm,.25),sl:Math.max(sl,.25),cost,n:sel.length};
+}
+function simulate(F,N,seed,eff){
+ const r=rng(seed),out=new Float64Array(N);let ev=0,le=0,vuln=0,vt=0,prim=0,sec=0;
+ for(let i=0;i<N;i++){
+  const tef=pert(r,F.tef)*eff.tef, poa=pert(r,F.poa)/100;
+  const n=poisson(r,tef*poa);ev+=n;let L=0;
+  for(let j=0;j<n&&j<200;j++){
+   const tc=pert(r,F.tcap), rs=Math.min(99,pert(r,F.rs)+eff.rs);vt++;
+   if(tc>rs){le++;vuln++;const p=pert(r,F.pl)*eff.lm;L+=p;prim+=p;if(r()<F.slef/100){const s=pert(r,F.sl)*eff.sl;L+=s;sec+=s;}}
+  }
+  out[i]=L;
+ }
+ const sorted=Float64Array.from(out).sort();const q=p=>sorted[Math.min(N-1,Math.floor(p*N))];
+ const mean=out.reduce((a,b)=>a+b,0)/N;
+ return {sorted,mean,p10:q(.1),p50:q(.5),p90:q(.9),p95:q(.95),p99:q(.99),tefEff:ev/N,lef:le/N,vuln:vt?vuln/vt:0,prim:prim/N,sec:sec/N,pZero:sorted.findIndex(x=>x>0)/N};
+}
+function runMC(){
+ const N=+$("#iters").value||10000;
+ const none={tef:1,rs:0,lm:1,sl:1,cost:0};
+ const eff=ctlEffects();
+ const t0=performance.now();
+ R.inh=simulate(S.fair,N,4242,none);
+ R.res=simulate(S.fair,N,4242,eff);
+ R.eff=eff;R.N=N;R.ms=Math.round(performance.now()-t0);
+ R.rr=R.inh.mean-R.res.mean;
+ R.rosi=eff.cost>0?(R.rr-eff.cost)/eff.cost:0;
+}
+
+/* ===================== Engine: defaults from scenario ===================== */
+function applyScenarioDefaults(type){
+ const T=SCTYPES[type],m=SIZE[S.org.size].m,pr={low:.6,medium:1,high:1.6}[S.org.pressure];
+ const secM=(S.asset.regulated?1.3:1)*(S.org.critical?1.4:1)*(1+compliance().length*.05);
+ const base=clamp(20+S.org.mTech*12,25,85);
+ S.fair={tef:T.tef.map(x=>+(x*pr).toFixed(1)),poa:[...T.poa],tcap:[...T.tcap],rs:[Math.round(base-15),Math.round(base),Math.round(Math.min(95,base+12))],
+  pl:T.pl.map(x=>Math.round(x*m/1000)*1000),slef:T.slef,sl:T.sl.map(x=>Math.round(x*m*secM/1000)*1000)};
+ S.scen.sev=T.sev;
+ // preselect relevant controls (top by relevance, cost-aware)
+ S.ctl=CTL.filter(c=>c.t.includes(type)).slice(0,5).map(c=>c.id);
+ if(!S.ctl.includes("ir"))S.ctl.push("ir");
+ // BRA heuristics
+ S.bra=[S.asset.internet?1:0,(type==="vuln"||type==="ransomware"||type==="phishing")?1:0,type==="vuln"||type==="cloud"?1:0,S.asset.regulated?1:0,+S.asset.crit>=3?1:0,type==="ransomware"||type==="insider"?1:0,type==="thirdparty"||type==="cloud"?1:0,S.asset.regulated?1:0,0,0];
+ S.chosen=null;
+}
+
+/* ===================== Treatment recommendation ===================== */
+function recommend(){
+ const ap=S.org.appetite,t=S.scen.type,b=R.bra,inh=R.inh,res=R.res;
+ let k,why;
+ if(inh.p90<=ap){k="accept";why="الخطر الكامن عند المئين 90 ("+money(inh.p90)+") ضمن شهية المخاطر ("+money(ap)+")؛ تكلفة الضوابط الإضافية غير مبررة."}
+ else if(t==="thirdparty"&&b.k==="C"&&R.rosi<0){k="avoid";why="مورد بخطر حرج وضوابط لا تسترد تكلفتها: رفض التعاقد أو اختيار بديل أقل خطراً."}
+ else if(R.rosi>0&&res.p90<=ap){k="mitigate";why="الضوابط المختارة تخفض الخطر إلى ما دون الشهية بعائد استثمار "+pct(R.rosi)+"."}
+ else if(res.p95>ap){k="transfer";why="حتى بعد التخفيف يبقى ذيل الخسارة (P95 "+money(res.p95)+") فوق الشهية: انقل الجزء المتبقي عبر التأمين وعقود SLA مع استمرار التخفيف."}
+ else {k="mitigate";why="التخفيف هو الخيار الأمثل؛ راجع مزيج الضوابط لتحسين ROSI."}
+ return {k,why};
+}
+
+/* ===================== Text generators (local engine) ===================== */
+function localPestle(){
+ const o=S.org,g=R.gov,T=SCTYPES[S.scen.type],a=S.asset,cm=R.compl;
+ return {
+  P:`نموذج الحوكمة المقترح ${g.n}. أصحاب المصلحة الرئيسيون: مجلس الإدارة ولجنة المخاطر، الرئيس التنفيذي، وقادة الوحدات المالكة لـ«${a.name||"الأصل"}». القرار يتطلب رعاية تنفيذية واضحة ومالك خطر محدد بالاسم.`,
+  E:`الأصل يدعم إيرادات تقارب ${money(a.revDay)} يومياً (${money(a.revDay*365)} سنوياً). أي توقف يمس عملية مدرة للدخل مباشرة؛ لذا يُقاس الخطر بالدولار لا بالألوان.`,
+  S:`نضج الأفراد ${o.mPeople.toFixed(1)} (${matLabel(o.mPeople)}). يتطلب السيناريو «${T.n}» تمكين المستخدمين والفرق التقنية بتدريب عملي قصير ورسائل إيجابية بدلاً من التخويف.`,
+  T:`نضج التكنولوجيا ${o.mTech.toFixed(1)} وتعقيد البنية ${LVL[o.complexity]}. الاعتماد على أدوات GRC لتسجيل القرارات، وITSM لتذاكر المعالجة، وCMDB لربط المشكلة بملف مخاطر الأصل.`,
+  L:`متطلبات الامتثال المطبقة: ${cm.join("، ")||"لا توجد قوانين محددة"}. ${a.regulated?"وجود بيانات منظمة يرفع احتمال الغرامات والإخطار الإلزامي.":"لا توجد بيانات منظمة مباشرة، لكن الالتزامات التعاقدية قائمة."}`,
+  En:`العملاء والمستثمرون والمجتمع يتأثرون بالثقة والسمعة؛ ${o.critical?"وجود أصول وطنية/صناعية يجعل الأثر المجتمعي وسلامة الخدمات اعتباراً رئيسياً.":"الشفافية في التواصل تحمي القيمة السوقية وولاء العملاء."}`
+ };
+}
+function localTreat(){
+ const t=S.scen.type,res=R.res,inh=R.inh,ap=S.org.appetite;
+ const bp={privacy:"تعديل عملية جمع بيانات العملاء لتقتصر على الحد الأدنى اللازم للغرض، مع سياسة احتفاظ وحذف آلي",phishing:"إضافة تحقق هاتفي ثنائي القناة لأي تغيير في الحسابات البنكية للموردين قبل التحويل",thirdparty:"إعادة تصميم تدفق البيانات بحيث لا يتلقى المورد إلا الحقول الضرورية (ترميز/إخفاء الهوية)",byod:"تقسيم الوصول: تطبيقات مُدارة فقط على الأجهزة الشخصية مع وصول مشروط حسب حالة الجهاز",ransomware:"فصل وظائف الفوترة الحرجة بخطة تشغيل يدوية بديلة لأيام التعطل",cloud:"إدراج فحص التهيئة كبوابة إلزامية في خط النشر بدلاً من الفحص اللاحق",vuln:"اعتماد نوافذ صيانة دورية متفق عليها مع وحدة الأعمال لتقليل زمن الترقيع",insider:"فصل المهام بحيث لا يجمع شخص واحد بين التنفيذ والاعتماد على قاعدة البيانات",general:"مراجعة العملية التجارية المرتبطة لإزالة الخطوات التي تولد التعرض دون قيمة"}[t];
+ return {
+  mitigate:`عملية الأعمال: ${bp}. تقنياً: تطبيق ${R.eff.n} ضوابط مختارة من خط الأساس، وتقليل الديون التقنية وتبسيط البنية، ودمج الأمان في التطوير (DevSecOps). الأثر: خفض متوسط الخسارة من ${money(inh.mean)} إلى ${money(res.mean)} سنوياً.`,
+  transfer:`صياغة SLA مع المورد/مزود السحابة تحدد نموذج المسؤولية المشتركة، والإخطار خلال 24–72 ساعة، وحق التدقيق، وتعويضات مالية. تأمين سيبراني: طرف أول (توقف الأعمال، استعادة البيانات، الفدية والتحقيق الجنائي) وطرف ثالث (الدعاوى، الغرامات حيث يُسمح قانوناً، تكاليف الإخطار). حد تغطية مقترح ≈ ${money(res.p95)} (P95 المتبقي) مع تحمل ذاتي ≈ ${money(Math.min(ap,res.p50||ap*.1))}.`,
+  avoid:`يُوصى بالتجنب إذا ظل P90 المتبقي (${money(res.p90)}) أعلى من الشهية بعد كل خيارات التخفيف والنقل، أو رفض المورد الضمانات الدنيا (شهادة SOC 2/ISO 27001، بند الإخطار، موقع البيانات). البديل: إيقاف النشاط أو اختيار مورد/تصميم بديل.`,
+  accept:`مقبول فقط إذا كان P90 (${money(res.p90)}) ضمن الشهية (${money(ap)})، بتوقيع مالك الخطر التجاري وتاريخ مراجعة. أو استثناء مؤقت بضوابط تعويضية وتاريخ انتهاء.`
+ };
+}
+function memoText(){
+ const o=S.org,a=S.asset,res=R.res,inh=R.inh,b=R.bra,critical=b.k==="C"||R.arp.k==="C"||res.p90>o.appetite;
+ const comp=CTL.filter(c=>S.ctl.includes(c.id)&&(c.f==="DE"||c.f==="RS"||c.f==="RC")).map(c=>"• "+c.n).join("\n")||"• مراقبة معززة للأصل (SIEM) وتنبيه فوري لفريق IR\n• تقييد الوصول الشبكي للأصل مؤقتاً";
+ const T=SCTYPES[S.scen.type].n,today=new Date().toISOString().slice(0,10);
+ if(S.memo==="exception"){
+  return {critical,html:`<b>مذكرة استثناء مؤقت من السياسة</b>
+التاريخ: ${today}   ·   المؤسسة: ${esc(o.name)}
+الأصل: ${esc(a.name||"—")}   ·   السيناريو: ${T}
+البند المستثنى: المتطلب ذو الصلة في المعيار/الإجراء الأمني المعتمد.
+
+مبرر الأعمال: ضرورة تشغيلية مؤقتة لحين اكتمال المعالجة الدائمة.
+الخطر المقدّر خلال فترة الاستثناء: متوسط ${money(res.mean/4)} للربع، P90 سنوي ${money(res.p90)}.
+
+الضوابط التعويضية الإلزامية:
+${comp}
+
+تاريخ انتهاء الاستثناء: ${addDays(critical?30:90)} (لا يُجدَّد تلقائياً — يتطلب إعادة تقييم)
+مالك الخطر: ${b.sign}
+${critical?'<span class="warn">⚠ استثناء لخطر مرتفع: يُراجع شهرياً في لجنة المخاطر.</span>':""}
+التوقيع: ____________________   مالك الخطر التجاري
+الاطلاع: ____________________   CISO    ·    ____________________   CRO</b>`};
+ }
+ return {critical,html:`<b>مذكرة قبول الخطر الرسمي</b>
+التاريخ: ${today}   ·   المؤسسة: ${esc(o.name)}
+الأصل: ${esc(a.name||"—")} (درجة مخاطر الأصل: ${R.arp.n})
+السيناريو: ${T} — شدة ${SEVN[S.scen.sev]}، تقييم BRA: ${b.n}
+
+القياس الكمي (Open FAIR، ${R.N.toLocaleString("en-US")} تكرار):
+• متوسط الخسارة السنوية المتوقعة (ALE) الكامنة: ${money(inh.mean)}
+• الخسارة المتبقية بعد الضوابط الحالية: متوسط ${money(res.mean)} · P90 ${money(res.p90)} · P95 ${money(res.p95)}
+• شهية المخاطر المعتمدة: ${money(o.appetite)}
+
+بتوقيعي أدناه، أقر بصفتي مالك الخطر التجاري بفهم الخطر الموصوف أعلاه وأقبله للفترة حتى ${addDays(180)}، مع الالتزام بإعادة التقييم عند أي تغيير جوهري.
+${critical?`<span class="warn">⚠ إقرار صريح: المضي قدماً بقبول هذا الخطر يخالف توصية مدير أمن المعلومات (CISO) بالتخفيف/النقل، والمسؤولية عن القرار تقع على مالك الخطر الموقّع.</span>`:""}
+مستوى التوقيع المطلوب: ${b.sign}
+
+التوقيع: ____________________   مالك الخطر التجاري
+الاطلاع: ____________________   CISO    ·    ____________________   CRO</b>`};
+}
+function dwell(){
+ const tm=S.org.mTech,base={1:220,2:140,3:70,4:25,5:8}[Math.round(tm)]||70;
+ let f=1;if(S.ctl.includes("edr"))f*=.55;if(S.ctl.includes("siem"))f*=.6;if(S.ctl.includes("ir"))f*=.85;
+ return {now:base,after:Math.max(1,Math.round(base*f))};
+}
+function bcdrT(){
+ const c=+S.asset.crit,map={4:["4 ساعات","15 دقيقة"],3:["24 ساعة","4 ساعات"],2:["72 ساعة","24 ساعة"],1:["7 أيام","72 ساعة"]};
+ const [rto,rpo]=map[c];const hr=S.asset.revDay/24;
+ return {rto,rpo,hr};
+}
+const DWELL_STEPS=["تفعيل القياس عن بُعد (EDR + سجلات الهوية والسحابة) على الأصل وجميع مسارات الوصول إليه","بناء حالات استخدام كشف مرتبطة بتكتيكات MITRE ATT&CK الخاصة بالسيناريو","اصطياد استباقي أسبوعي للتهديدات (Threat Hunting) مبني على فرضيات، لا على التنبيهات فقط","أتمتة الفرز والاحتواء الأولي (SOAR) لتقليص زمن الاستجابة من ساعات إلى دقائق","قياس MTTD وMTTR شهرياً ورفعها كمؤشرات أداء لمجلس الإدارة"];
+const CSIRT_STEPS=["الكشف والتصنيف: فريق IR يقيّم الشدة ويفعّل دليل التشغيل الخاص بالسيناريو خلال 30 دقيقة","الاحتواء: عزل الأصول المتأثرة مع الحفاظ على الأدلة الجنائية (سلسلة الحيازة)","الشؤون القانونية: تقييم التزامات الإخطار التنظيمي والتعاقدي وتوجيه التحقيق تحت الامتياز القانوني","العلاقات العامة: رسائل معدّة مسبقاً للعملاء والإعلام، متحدث رسمي واحد، شفافية دون تهويل","الموارد البشرية: التعامل مع أي تورط داخلي، ودعم الموظفين المتأثرين، وتحديث صلاحيات الوصول","التعافي والدروس المستفادة: مراجعة خلال 10 أيام وتحديث الضوابط وسجل المخاطر"];
+const AWARE={
+ ransom:["فريقنا هو خط الاستعادة الأقوى","أكثر من 90% من زملائنا في فرق التشغيل أنهوا تمرين الاستعادة من النسخ الاحتياطية هذا الربع — وأنت قادر على ذلك أيضاً.\n\nثلاث خطوات بسيطة تحمي عملنا:\n1) أبلغ فوراً عن أي سلوك غير مألوف عبر زر «الإبلاغ» — البلاغ المبكر يُشكر ولا يُلام.\n2) لا تعطل أدوات الحماية على جهازك حتى لو أبطأت مهمتك؛ تواصل مع الدعم لنحل المشكلة معاً.\n3) احفظ ملفات العمل في المواقع المعتمدة التي تُنسخ احتياطياً تلقائياً.\n\nنحن نستطيع إبقاء أعمالنا مستمرة مهما حدث. شكراً لأنك جزء من ذلك."],
+ cloud:["البناء الآمن أسرع مما تظن","فرق التطوير التي فعّلت فحص التهيئة في خط النشر خفضت الأخطاء المكتشفة لاحقاً بشكل ملحوظ، دون إبطاء الإصدارات.\n\nما المطلوب منك:\n1) استخدم القوالب المعتمدة (Infrastructure as Code) — الأمان مدمج فيها مسبقاً.\n2) إذا أوقفتك بوابة الفحص، فهي تنقذك من إصلاح مكلف لاحقاً؛ اتبع الإرشاد المرفق بالتنبيه.\n3) اطلب مراجعة سريعة من بطل الأمن (Security Champion) في فريقك.\n\nيمكننا أن نبني بسرعة وأمان معاً."],
+ vendor:["نختار شركاءنا بثقة","كل قسم يتعامل مع مورد جديد يمر بتقييم مخاطر سريع — وقد أنجزت الفرق معظم التقييمات خلال أقل من أسبوع.\n\nكيف تساعد:\n1) أشرك فريق الأمن مبكراً في مرحلة اختيار المورد، لا بعد التوقيع.\n2) شارك الحد الأدنى من البيانات الذي يحتاجه المورد فعلاً.\n3) استخدم نموذج العقد المعتمد الذي يتضمن بنود الإخطار والتدقيق.\n\nبهذا نتحرك بسرعة دون مفاجآت."],
+ patch:["التحديث في موعده إنجاز للفريق","بفضل التزام الفرق بنوافذ الصيانة، أغلقنا معظم الثغرات الحرجة ضمن النافذة الزمنية المحددة.\n\nللفرق التقنية:\n1) راجع لوحة الثغرات المرتبة حسب ملف مخاطر الأصل — ابدأ بالأعلى.\n2) إذا لم تتمكن من الإغلاق ضمن النافذة، صعّد مبكراً؛ التصعيد جزء طبيعي من العملية.\n3) وثّق أي ضابط تعويضي مؤقت في التذكرة.\n\nكل ترقيع تنجزه يحمي عملاءنا مباشرة."],
+ breakglass:["الوصول الطارئ: آمن، سريع، وموثق","يحتاج كل فريق أحياناً إلى صلاحيات طارئة، وقد صممنا عملية «كسر الزجاج» (Break Glass) لتكون متاحة لك خلال دقائق عند الحاجة الفعلية.\n\nكيف تعمل:\n1) اطلب الوصول الطارئ عبر خزنة PAM مع ذكر رقم الحادث أو التذكرة.\n2) تُسجَّل الجلسة تلقائياً وتنتهي الصلاحية بعد المدة المحددة — لا حاجة لتذكّر إلغائها.\n3) راجع الجلسة مع قائد فريقك خلال 24 ساعة؛ هذه مراجعة روتينية تحمي الجميع.\n\nالحسابات المشتركة لم تعد ضرورية: يمكننا العمل بسرعة مع مساءلة واضحة."],
+ phish:["أنت أذكى من أي رسالة احتيالية","زملاؤك أبلغوا عن مئات الرسائل المشبوهة هذا الربع، وارتفعت نسبة الإبلاغ أسرع من نسبة النقر — هذا نجاح جماعي.\n\nثلاث عادات تكفي:\n1) توقف لحظة أمام أي طلب عاجل لتحويل مالي أو تغيير حساب بنكي.\n2) تحقق عبر قناة ثانية معروفة (اتصال هاتفي برقم مسجل لدينا).\n3) استخدم زر «إبلاغ عن تصيد» — لن تُلام أبداً على البلاغ، حتى لو كانت الرسالة سليمة.\n\nيمكننا القيام بذلك معاً."],
+ privacy:["نحترم بيانات عملائنا كما نحترمهم","فرق المنتج التي طبقت مبدأ «الحد الأدنى من البيانات» أطلقت ميزاتها بموافقات أسرع وثقة أعلى من العملاء.\n\nعند تصميم أي ميزة:\n1) اسأل: هل نحتاج هذا الحقل فعلاً لتحقيق الغرض؟\n2) حدد مدة الاحتفاظ وآلية الحذف منذ البداية.\n3) استعن بنموذج تقييم أثر الخصوصية السريع (صفحة واحدة).\n\nالخصوصية ميزة تنافسية نصنعها معاً."],
+ byod:["اعمل من أي مكان بأمان","آلاف الزملاء يعملون عن بعد يومياً بأمان، لأن الإعداد الصحيح يستغرق أقل من 10 دقائق.\n\nخطواتك:\n1) سجّل جهازك في بوابة الأجهزة المُدارة — يفصل بيانات العمل عن بياناتك الشخصية دون الاطلاع عليها.\n2) فعّل المصادقة متعددة العوامل على تطبيق المصادقة.\n3) استخدم التطبيقات المعتمدة للبريد والملفات.\n\nمرونة العمل وأمانه يمكن أن يجتمعا — ونحن نثبت ذلك يومياً."],
+ general:["الأمن مهارة نتقنها معاً","معظم زملائنا يطبقون الممارسات الأمنية الأساسية يومياً، ونتائج محاكاتنا تتحسن كل ربع.\n\nثلاث خطوات:\n1) أبلغ عن أي شيء غير مألوف — البلاغ المبكر يُقدَّر.\n2) فعّل المصادقة متعددة العوامل على حساباتك.\n3) اسأل فريق الأمن متى شئت؛ نحن هنا لتسهيل عملك.\n\nيمكننا القيام بذلك."]
+};
+function cultureDims(){
+ const p=S.org.mPeople,b=v=>clamp(v,1,5);
+ return [
+  {k:"المواقف Attitudes",v:b(p+.2),m:"استبيان ربع سنوي (مقياس ليكرت) عن نظرة الموظفين لبرنامج الأمن ومدى اعتباره ممكّناً للأعمال",kpi:"≥ 70% مواقف إيجابية"},
+  {k:"المعايير Norms",v:b(p-.2),m:"ملاحظة السلوكيات المقبولة اجتماعياً داخل الفرق (مشاركة كلمات المرور، قفل الشاشة) ومقابلات مع أبطال الأمن",kpi:"انخفاض المخالفات المرصودة 30%"},
+  {k:"الإدراك Cognition",v:b(p),m:"اختبارات معرفة قصيرة مرتبطة بالسيناريو بعد كل وحدة تدريبية",kpi:"≥ 85% نجاح"},
+  {k:"التواصل Communication",v:b(p-.4),m:"قياس وصول الرسائل وتفاعلها، وزمن الاستجابة لأسئلة الموظفين لفريق الأمن",kpi:"زمن رد < 24 ساعة"},
+  {k:"الامتثال Compliance",v:b(S.org.mProcess),m:"نسبة إكمال التدريب الإلزامي والإقرار بالسياسات، ونتائج التدقيق",kpi:"≥ 95% إكمال"},
+  {k:"السلوك الفعلي Behavior",v:b(p-.3),m:"فحص السجلات التقنية (استخدام MFA، الوصول الطارئ، رفع ملفات غير مصرح) ونتائج محاكاة التصيد: نسبة النقر مقابل نسبة الإبلاغ",kpi:"نقر < 5% · إبلاغ > 60%"}
+ ].map(d=>({...d,t:Math.min(5,d.v+1)}));
+}
+function policyLevel(){
+ let lv=SCTYPES[S.scen.type].policy;
+ if(S.org.mPeople<2&&S.org.mProcess<2)lv=0;
+ if(AI&&AI.policy&&Number.isInteger(AI.policy.level))lv=clamp(AI.policy.level,0,5);
+ return lv;
+}
+function boardCards(){
+ const o=S.org,inh=R.inh,res=R.res,T=SCTYPES[S.scen.type].n,rec=R.rec;
+ const AIb=AI&&Array.isArray(AI.board)&&AI.board.length>=5?AI.board:null;
+ const loc=[
+  ["الوضع الحالي والفجوات",`سيناريو «${T}» على ${S.asset.name||"أصل حيوي"}. متوسط النضج ${avgMat().toFixed(1)}/5؛ الفجوة الأوضح في محور ${["الأفراد","العمليات","التكنولوجيا"][[o.mPeople,o.mProcess,o.mTech].indexOf(Math.min(o.mPeople,o.mProcess,o.mTech))]}. التعرض الكامن ${money(inh.mean)} سنوياً في المتوسط.`],
+  ["الأثر على الأعمال",`الأصل يدعم ${money(S.asset.revDay)} يومياً من الإيرادات؛ كل ساعة توقف ≈ ${money(S.asset.revDay/24)}. احتمال خسارة تتجاوز ${money(inh.p90)} في السنة ≈ 10%.`],
+  ["العمل الجماعي للحل",`الحل مشترك: وحدة الأعمال مالكة الخطر (A)، CIO للتنفيذ، CISO للتصميم والرقابة، القانونية والمالية للعقود والتأمين، HR للتوعية.`],
+  ["حماية نتائج الأعمال",`خيار «${({accept:"القبول",mitigate:"التخفيف",transfer:"النقل",avoid:"التجنب"})[rec.k]}» يحمي استمرارية الإيرادات ومؤشرات الأداء: خفض متوقع ${money(R.rr)} سنوياً مقابل استثمار ${money(R.eff.cost)} (ROSI ${pct(R.rosi)}).`],
+  ["توقعات واقعية للمخاطر المتبقية",`لا يوجد أمن مطلق: يبقى متوسط خسارة متوقع ${money(res.mean)} و P90 ${money(res.p90)} مقابل شهية ${money(o.appetite)}. سنعيد القياس بعد 90 يوماً.`]
+ ];
+ return loc.map((c,i)=>AIb?[c[0],AIb[i]]:c);
+}
+function defaultPlan(){
+ const pw=R.prio,cur={culture:S.org.mPeople,risk:S.org.mProcess,baseline:S.org.mTech,simplify:Math.max(1,S.org.mTech-.5),access:Math.max(1,(S.org.mTech+S.org.mProcess)/2-.5),resil:Math.max(1,S.org.mTech-.3)};
+ const G={
+  culture:["تعيين أبطال أمن في 3 وحدات أعمال","إطلاق حملة توعية إيجابية مرتبطة بالسيناريو","اعتماد RACI ونموذج الحوكمة"],
+  risk:["تحليل FAIR لأعلى 3 سيناريوهات","اعتماد شهية مخاطر بالدولار من المجلس","سجل مخاطر موحد في أداة GRC"],
+  baseline:["خط أساس ضوابط لأعلى 20 أصلاً حرجاً","تطبيق نوافذ المعالجة CHML","قياس التغطية شهرياً"],
+  simplify:["جرد وإحالة 10% من الأنظمة القديمة","توحيد أدوات الأمن المتداخلة","خفض الاستثناءات المفتوحة"],
+  access:["MFA لكل الحسابات المميزة","تفعيل عملية Break Glass","مراجعة صلاحيات ربع سنوية"],
+  resil:["تمرين طاولة لسيناريو الحادث مع القانونية وPR","اختبار استعادة الأصل الحرج","خفض زمن الكشف MTTD 30%"]
+ };
+ const M={culture:"نسبة الإبلاغ عن التصيد؛ مؤشر المواقف",risk:"% السيناريوهات المقاسة كمياً؛ ALE مقابل الشهية",baseline:"% الأصول الحرجة الملتزمة بخط الأساس",simplify:"عدد الأنظمة المحالة؛ تكلفة الأدوات",access:"% الحسابات المميزة تحت PAM/MFA",resil:"MTTD / MTTR؛ نجاح اختبار RTO"};
+ const O={culture:"CISO + HR",risk:"CRO",baseline:"CIO",simplify:"CIO",access:"CISO",resil:"CISO + فريق IR"};
+ return PRIOS.map(p=>{const w=pw.find(x=>x.k===p.k);const ai=AI&&Array.isArray(AI.plan)?AI.plan.find(x=>x&&x.priority===p.k):null;
+  return {k:p.k,n:p.n,in:w.focus,cur:+cur[p.k].toFixed(1),tgt:+Math.min(5,cur[p.k]+1).toFixed(1),goals:ai?.goals||G[p.k].join(" · "),metric:ai?.metric||M[p.k],owner:O[p.k],m30:"تقييم الوضع وتحديد الأدوار",m60:"تنفيذ الهدف الأول وقياسه",m90:"مراجعة النتائج مع الإدارة العليا"};});
+}
+function defaultStake(){
+ return [
+  ["مجلس الإدارة / لجنة المخاطر","المصادقة على شهية المخاطر وقبول المتبقي","موجز ربع سنوي من 5 بطاقات","CISO + CRO"],
+  ["الرئيس التنفيذي CEO","الرعاية التنفيذية وتوقيع ميثاق الأمن","اجتماع شهري 30 دقيقة","CISO"],
+  ["قادة وحدات الأعمال LOB","ملكية الخطر وتوقيع القرارات","ورشة عمل + تقرير مخاطر الأصل","CISO + CRO"],
+  ["CIO وفرق التشغيل","تنفيذ الضوابط ونوافذ المعالجة","اجتماع أسبوعي + لوحة تذاكر ITSM","مدير عمليات الأمن"],
+  ["الشؤون القانونية والامتثال","الإخطار التنظيمي والعقود","مراجعة شهرية","CISO"],
+  ["المالية","ميزانية الضوابط والتأمين وROSI","مراجعة ربع سنوية","CRO"],
+  ["الموارد البشرية","التوعية والسلوك والإجراءات التأديبية العادلة","خطة توعية مشتركة","CISO"],
+  ["التدقيق الداخلي","ضمان مستقل","خطة تدقيق سنوية","لجنة التدقيق"]
+ ];
+}
+
+/* ===================== Recompute & render ===================== */
+function recompute(runSim=true){
+ R.gov=governance();R.compl=compliance();R.prio=prioWeights();R.arp=arp();R.bra=braScore();
+ if(runSim||!R.inh)runMC();
+ R.rec=recommend();
+ if(!S.chosen)S.chosen=R.rec.k;
+ renderAll();save();
+}
+function renderAll(){renderT1();renderT2();renderT3();renderT4();renderT5();}
+
+/* -------- Tab 1 -------- */
+let charts={};
+function mkChart(id,cfg){if(typeof Chart==="undefined")return;if(charts[id]){charts[id].destroy();}charts[id]=new Chart(document.getElementById(id),cfg);}
+if(typeof Chart!=="undefined"){Chart.defaults.color="#8e9bbb";Chart.defaults.font.family='"IBM Plex Sans Arabic",system-ui';Chart.defaults.borderColor="rgba(47,63,107,.5)";}
+function renderT1(){
+ const o=S.org,m=avgMat();
+ $("#lvP").textContent=o.mPeople.toFixed(1)+" "+matLabel(o.mPeople);
+ $("#lvR").textContent=o.mProcess.toFixed(1)+" "+matLabel(o.mProcess);
+ $("#lvT").textContent=o.mTech.toFixed(1)+" "+matLabel(o.mTech);
+ $("#k1").innerHTML=`
+  <div class="kpi"><div class="l">الحجم والقطاع</div><div class="v" style="direction:rtl">${SIZE[o.size].name}</div><div class="h">${SECTOR[o.sector]} · ضغط ${LVL[o.pressure]}</div></div>
+  <div class="kpi a"><div class="l">متوسط النضج</div><div class="v">${m.toFixed(1)} / 5</div><div class="h">${matLabel(m)}</div></div>
+  <div class="kpi g"><div class="l">نموذج الحوكمة الأمثل</div><div class="v" style="direction:rtl">${R.gov.n}</div><div class="h">من شجرة القرار</div></div>
+  <div class="kpi r"><div class="l">أطر الامتثال المطبقة</div><div class="v">${R.compl.length}</div><div class="h">${R.compl.slice(0,4).join(" · ")}</div></div>`;
+ $("#govTag").textContent=R.gov.n;
+ $("#govNote").textContent=R.gov.note;
+ // tree svg
+ const g=R.gov.k,on="#5b8cff",off="#2f3f6b";
+ const c1=g==="central",c2=g==="matrix",c3=g==="decentral",n2=!c1;
+ $("#govTree").innerHTML=`<svg viewBox="0 0 520 250" width="100%" style="max-height:260px">
+  <defs><filter id="gl"><feGaussianBlur stdDeviation="3" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter></defs>
+  <g font-size="12.5" text-anchor="middle" fill="#e7ecf7">
+  <line x1="260" y1="52" x2="100" y2="140" stroke="${c1?on:off}" stroke-width="${c1?3:1.5}"/>
+  <line x1="260" y1="52" x2="340" y2="110" stroke="${n2?on:off}" stroke-width="${n2?3:1.5}"/>
+  <line x1="340" y1="140" x2="250" y2="200" stroke="${c2?on:off}" stroke-width="${c2?3:1.5}"/>
+  <line x1="340" y1="140" x2="430" y2="200" stroke="${c3?on:off}" stroke-width="${c3?3:1.5}"/>
+  <rect x="120" y="14" width="280" height="40" rx="10" fill="#172140" stroke="${on}"/><text x="260" y="39">كيان واحد قليل التشتت وتعقيد غير عالٍ؟</text>
+  <text x="168" y="92" fill="${c1?'#86efac':'#64718f'}" font-size="11.5">نعم</text><text x="312" y="80" fill="${n2?'#fca5a5':'#64718f'}" font-size="11.5">لا</text>
+  <rect x="245" y="110" width="190" height="34" rx="10" fill="#172140" stroke="${n2?on:off}"/><text x="340" y="132">متوسط النضج ≥ 3.0 ؟</text>
+  <text x="282" y="178" fill="${c2?'#86efac':'#64718f'}" font-size="11.5">نعم</text><text x="402" y="178" fill="${c3?'#fca5a5':'#64718f'}" font-size="11.5">لا</text>
+  ${[["مركزي",100,150,c1],["مصفوفي",250,205,c2],["لامركزي",430,205,c3]].map(([t,x,y,a])=>`<rect x="${x-62}" y="${y}" width="124" height="38" rx="19" fill="${a?'rgba(34,197,94,.18)':'#0e1527'}" stroke="${a?'#22c55e':off}" stroke-width="${a?2:1}" ${a?'filter="url(#gl)"':''}/><text x="${x}" y="${y+24}" font-weight="700" fill="${a?'#86efac':'#8e9bbb'}">${t}${a?' ✓':''}</text>`).join("")}
+  </g></svg>`;
+ $("#compl").innerHTML=R.compl.length?`<div class="grid g2" style="gap:8px">${R.compl.map(l=>`<div class="kpi" style="padding:9px 12px"><div style="font-weight:700;direction:ltr;text-align:right">${l}</div><div class="h">${LAWS[l]}</div></div>`).join("")}</div>`:'<div class="muted">لا توجد قوانين قطاعية محددة؛ تُطبق الالتزامات التعاقدية وأفضل الممارسات (ISO 27001).</div>';
+ mkChart("cRadar",{type:"radar",data:{labels:["الأفراد","العمليات","التكنولوجيا"],datasets:[
+  {label:"الحالي",data:[o.mPeople,o.mProcess,o.mTech],borderColor:"#5b8cff",backgroundColor:"rgba(91,140,255,.25)",pointBackgroundColor:"#5b8cff"},
+  {label:"الهدف",data:[o.mPeople,o.mProcess,o.mTech].map(v=>Math.min(5,v+1)),borderColor:"#22c55e",backgroundColor:"rgba(34,197,94,.06)",borderDash:[5,4],pointRadius:0}]},
+  options:{maintainAspectRatio:false,scales:{r:{min:0,max:5,ticks:{stepSize:1,backdropColor:"transparent"},grid:{color:"rgba(47,63,107,.6)"},angleLines:{color:"rgba(47,63,107,.6)"},pointLabels:{font:{size:13}}}},plugins:{legend:{position:"bottom"}}}});
+ const pw=R.prio;
+ mkChart("cPareto",{data:{labels:pw.map(p=>p.s),datasets:[
+  {type:"bar",label:"الوزن %",data:pw.map(p=>+p.p.toFixed(1)),backgroundColor:pw.map(p=>p.focus?"rgba(91,140,255,.85)":"rgba(100,113,143,.45)"),borderRadius:6,yAxisID:"y",order:2},
+  {type:"line",label:"التراكمي %",data:pw.map(p=>+p.cum.toFixed(1)),borderColor:"#f5a524",backgroundColor:"#f5a524",tension:.3,yAxisID:"y2",order:1},
+  {type:"line",label:"خط 80%",data:pw.map(()=>80),borderColor:"rgba(240,82,82,.7)",borderDash:[6,5],pointRadius:0,yAxisID:"y2",order:0}]},
+  options:{maintainAspectRatio:false,scales:{y:{position:"right",beginAtZero:true,title:{display:true,text:"الوزن النسبي %"}},y2:{position:"left",min:0,max:100,grid:{display:false},title:{display:true,text:"تراكمي %"}},x:{reverse:true}},plugins:{legend:{position:"bottom"}}}});
+}
+
+/* -------- Tab 2 -------- */
+function renderT2(){
+ const T=SCTYPES[S.scen.type];
+ $("#scTypeTag").textContent="التصنيف: "+T.n;
+ const pe=(AI&&AI.pestle)?Object.assign(localPestle(),AI.pestle):localPestle();
+ const PE=[["P","سياسي — أصحاب المصلحة والحوكمة","#5b8cff"],["E","اقتصادي — العمليات المدرة للدخل","#22c55e"],["S","اجتماعي — المستخدمون والتدريب","#a78bfa"],["T","تقني — GRC · ITSM · CMDB","#22d3ee"],["L","قانوني وتنظيمي","#f05252"],["En","بيئي — العملاء والمستثمرون والمجتمع","#f5a524"]];
+ $("#pestle").innerHTML=PE.map(([k,n,c])=>`<div class="pc"><div class="k" style="background:${c}22;color:${c}">${k==="En"?"E":k}</div><b>${n}</b><p>${esc(pe[k])}</p></div>`).join("");
+ const ap=R.arp;
+ const tc={C:"c",H:"r",M:"a",L:"g"};
+ $("#arpOut").innerHTML=`<div class="verdict ${ap.k==="L"?"g":ap.k==="M"?"a":"r"}"><div><div class="small muted">درجة مخاطر الأصل</div><div class="big">${ap.n} <span class="small muted">(${ap.score}/9)</span></div><div class="small">قيمة البيانات ≈ ${money(ap.dataValue)} · إيرادات معتمدة ${money(ap.revYear)}/سنة</div></div></div>`;
+ // matrix
+ const sevs=["C","H","M","L"];
+ $("#rmx").innerHTML=`<tr><th>الأصل \\ الشدة</th>${sevs.map(s=>`<th>${SEVN[s]}</th>`).join("")}</tr>`+sevs.map(a=>`<tr><th>${SEVN[a]}</th>${sevs.map(s=>{const d=RMX[a][s];const hue=d<=7?"rgba(225,29,72,.55)":d<=30?"rgba(240,82,82,.3)":d<=90?"rgba(245,165,36,.25)":"rgba(34,197,94,.18)";return `<td style="background:${hue}" class="${a===ap.k&&s===S.scen.sev?"hit":""}">${d} يوم</td>`;}).join("")}</tr>`).join("");
+ const win=RMX[ap.k][S.scen.sev];R.win=win;
+ const esc_=S.scen.sopDays>win||R.bra.k==="C"||R.bra.k==="H";R.escalate=esc_;
+ $("#sopVerdict").innerHTML=`<div class="verdict ${esc_?"r":"g"}"><div style="font-size:22px">${esc_?"⬆":"✔"}</div><div><div class="big">${esc_?"تصعيد للتقييم الكمي":"حل عبر SOP"}</div><div class="small">نافذة المعالجة ${win} يوم · زمن SOP المقدّر ${S.scen.sopDays} يوم${esc_?(S.scen.sopDays>win?" — يتجاوز النافذة":" — تقييم BRA مرتفع")+"؛ يلزم تحليل FAIR وقرار مالك الخطر.":" — ضمن النافذة، سجّل في نظام إدارة المشكلات وتابع."}</div></div></div>`;
+ // BRA
+ $("#bra").innerHTML=BRAQ.map((q,i)=>`<div class="q"><span>${q.q}</span><div class="yn"><button class="y ${S.bra[i]?"on":""} ${q.good?"good":""}" data-i="${i}" data-v="1">نعم</button><button class="n ${!S.bra[i]?"on":""}" data-i="${i}" data-v="0">لا</button></div></div>`).join("");
+ $$("#bra .yn button").forEach(b=>b.onclick=()=>{S.bra[+b.dataset.i]=+b.dataset.v;recompute(false);});
+ const b=R.bra;
+ $("#braTag").className="tag "+tc[b.k];$("#braTag").textContent=b.n+" ("+b.s+")";
+ $("#braOut").innerHTML=`<div class="kpi ${tc[b.k]==="c"?"c":tc[b.k]}"><div class="l">مستوى التوقيع المطلوب</div><div class="v" style="direction:rtl;font-size:16px">${b.sign}</div></div>`;
+ // funnel
+ const fl=[["100 مشكلة مكتشفة",100,"#334155"],["≈ 90 تُحل عبر SOP",88,"#1d4ed8"],["≈ 10 تقييم خفيف BRA",56,"#b45309"],["≈ 2 تحليل FAIR كامل",30,"#be123c"]];
+ $("#funnel").innerHTML=fl.map(([t,w,c],i)=>`<div style="width:${w}%;background:${c};${(esc_&&i===(R.bra.k==="C"||R.bra.k==="H"?3:2))||(!esc_&&i===1)?"box-shadow:0 0 0 2px #fff;":""}">${t}</div>`).join("")+`<div class="small" style="margin-top:6px">موقع هذا السيناريو: <b>${esc_?(R.bra.k==="C"||R.bra.k==="H"?"تحليل FAIR كامل":"تقييم خفيف"):"SOP"}</b></div>`;
+ const box=$("#aiSummary");if(AI&&AI.summary){box.classList.add("on");box.innerHTML="✦ <b>خلاصة الذكاء الاصطناعي:</b> "+esc(AI.summary);}else box.classList.remove("on");
+}
+
+/* -------- Tab 3 -------- */
+function renderT3(){
+ const i=R.inh,r=R.res,e=R.eff,ap=S.org.appetite;
+ $("#k3").innerHTML=`
+  <div class="kpi"><div class="l">تردد حدث الخسارة LEF</div><div class="v">${i.lef.toFixed(2)}<span class="small muted">/سنة</span></div><div class="h">قابلية الإصابة ${pct(i.vuln)} · بعد الضوابط ${r.lef.toFixed(2)}</div></div>
+  <div class="kpi r"><div class="l">ALE الكامن (متوسط)</div><div class="v">${money(i.mean)}</div><div class="h">P10 ${money(i.p10)} · P90 ${money(i.p90)}</div></div>
+  <div class="kpi g"><div class="l">ALE المتبقي (متوسط)</div><div class="v">${money(r.mean)}</div><div class="h">P90 ${money(r.p90)} · P95 ${money(r.p95)}</div></div>
+  <div class="kpi a"><div class="l">تكلفة الضوابط السنوية</div><div class="v">${money(e.cost)}</div><div class="h">${e.n} ضابطاً مختاراً</div></div>
+  <div class="kpi ${R.rosi>=0?"g":"r"}"><div class="l">ROSI</div><div class="v">${e.cost?pct(R.rosi):"—"}</div><div class="h">خفض الخطر ${money(R.rr)}/سنة</div></div>`;
+ $("#fairNote").textContent=`آخر تشغيل: ${R.N.toLocaleString("en-US")} تكرار في ${R.ms} مللي ثانية · بذرة ثابتة لمقارنة عادلة بين الكامن والمتبقي.`+(AI&&AI.fair&&AI.fair.rationale?" · مبرر نطاقات الذكاء الاصطناعي: "+AI.fair.rationale:"");
+ // LEC
+ const pts=(s)=>{const N=s.sorted.length,xs=[];const mx=Math.max(i.p99,1);for(let k=0;k<=40;k++){const x=mx*k/40;let lo=0,hi=N;while(lo<hi){const md=(lo+hi)>>1;if(s.sorted[md]<=x)lo=md+1;else hi=md;}xs.push({x,y:(N-lo)/N*100});}return xs;};
+ mkChart("cLEC",{type:"line",data:{datasets:[
+  {label:"كامن",data:pts(i),borderColor:"#f05252",backgroundColor:"rgba(240,82,82,.1)",fill:true,pointRadius:0,tension:.25},
+  {label:"متبقٍ",data:pts(r),borderColor:"#22c55e",backgroundColor:"rgba(34,197,94,.1)",fill:true,pointRadius:0,tension:.25},
+  {label:"شهية المخاطر",data:[{x:ap,y:0},{x:ap,y:100}],borderColor:"#f5a524",borderDash:[6,5],pointRadius:0}]},
+  options:{maintainAspectRatio:false,parsing:false,scales:{x:{type:"linear",reverse:true,ticks:{callback:v=>money(v)},title:{display:true,text:"الخسارة السنوية"}},y:{min:0,max:100,ticks:{callback:v=>v+"%"},title:{display:true,text:"احتمال التجاوز"}}},plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>`${c.dataset.label}: ${c.parsed.y.toFixed(1)}% > ${money(c.parsed.x)}`}}}}});
+ // histogram
+ const bins=20,mx=i.p99||1,h=new Array(bins).fill(0),hr=new Array(bins).fill(0);
+ i.sorted.forEach(v=>{if(v>0)h[Math.min(bins-1,Math.floor(v/mx*bins))]++;});
+ r.sorted.forEach(v=>{if(v>0)hr[Math.min(bins-1,Math.floor(v/mx*bins))]++;});
+ mkChart("cHist",{type:"bar",data:{labels:h.map((_,k)=>money(mx*(k+.5)/bins)),datasets:[{label:"كامن",data:h,backgroundColor:"rgba(240,82,82,.7)",borderRadius:3},{label:"متبقٍ",data:hr,backgroundColor:"rgba(34,197,94,.7)",borderRadius:3}]},options:{maintainAspectRatio:false,scales:{x:{reverse:true,ticks:{maxTicksLimit:5}},y:{title:{display:true,text:"عدد السنوات المحاكاة"}}},plugins:{legend:{position:"bottom"}}}});
+ mkChart("cROSI",{type:"bar",data:{labels:["الخطر الكامن","الخطر المتبقي","تكلفة الضوابط","صافي الفائدة"],datasets:[{data:[i.mean,r.mean,e.cost,R.rr-e.cost],backgroundColor:["#f05252","#22c55e","#f5a524",R.rr-e.cost>=0?"#5b8cff":"#e11d48"],borderRadius:6}]},options:{maintainAspectRatio:false,scales:{x:{reverse:true},y:{ticks:{callback:v=>money(v)}}},plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>money(c.parsed.y,true)}}}}});
+ // ledger
+ const a=R.arp,greenRows=[["قيمة البيانات المحمية",a.dataValue],["الإيرادات السنوية المعتمدة على الأصل",a.revYear],["قيمة خفض الخطر (الكامن − المتبقي)",R.rr]];
+ const redRows=[["الخسارة المتوقعة المتبقية (ALE)",r.mean],["  منها خسائر ثانوية (غرامات، دعاوى، سمعة)",r.sec],["ميزانية الضوابط السنوية",e.cost],["تعرض الذيل P95 (للعلم — احتياطي/تأمين)",r.p95]];
+ const gT=greenRows.reduce((s,x)=>s+x[1],0),rT=r.mean+e.cost;
+ $("#ledger").innerHTML=`<div class="col gcol"><div class="hd"><span>الأصول ▲</span><span>مدين</span></div>${greenRows.map(([n,v])=>`<div class="ln"><span>${n}</span><span class="num" style="color:#86efac">${money(v,true)}</span></div>`).join("")}<div class="ln tot"><span>إجمالي القيمة المحمية</span><span class="num" style="color:#86efac">${money(gT,true)}</span></div></div>
+  <div class="col rcol"><div class="hd"><span>الخصوم ▼</span><span>دائن</span></div>${redRows.map(([n,v],k)=>`<div class="ln" ${k===1||k===3?'style="color:var(--mu);font-size:12px"':""}><span>${n}</span><span class="num" style="color:#fca5a5">${money(v,true)}</span></div>`).join("")}<div class="ln tot"><span>إجمالي الخصوم السنوية</span><span class="num" style="color:#fca5a5">${money(rT,true)}</span></div></div>`;
+ const net=R.rr-e.cost;
+ $("#net").style.background=net>=0?"var(--grs)":"var(--rds)";
+ $("#net").innerHTML=`<span>صافي القيمة الاقتصادية للضوابط (خفض الخطر − التكلفة)</span><span class="num" style="font-size:18px;color:${net>=0?"#86efac":"#fca5a5"}">${money(net,true)}</span>`;
+ $("#fairTbl").innerHTML=`<tr><th>المكوّن</th><th>كامن</th><th>متبقٍ</th></tr>
+  <tr><td>أحداث التهديد الفعلية/سنة</td><td class="num">${i.tefEff.toFixed(2)}</td><td class="num">${r.tefEff.toFixed(2)}</td></tr>
+  <tr><td>قابلية الإصابة P(TCap &gt; RS)</td><td class="num">${pct(i.vuln)}</td><td class="num">${pct(r.vuln)}</td></tr>
+  <tr><td>تردد حدث الخسارة LEF</td><td class="num">${i.lef.toFixed(2)}</td><td class="num">${r.lef.toFixed(2)}</td></tr>
+  <tr><td>الخسارة الأولية المتوقعة/سنة</td><td class="num">${money(i.prim)}</td><td class="num">${money(r.prim)}</td></tr>
+  <tr><td>الخسارة الثانوية المتوقعة/سنة</td><td class="num">${money(i.sec)}</td><td class="num">${money(r.sec)}</td></tr>
+  <tr><td>سنوات بلا خسارة</td><td class="num">${pct(Math.max(0,i.pZero))}</td><td class="num">${pct(Math.max(0,r.pZero))}</td></tr>
+  <tr><td>P50 / P90 / P99</td><td class="num">${money(i.p50)} / ${money(i.p90)} / ${money(i.p99)}</td><td class="num">${money(r.p50)} / ${money(r.p90)} / ${money(r.p99)}</td></tr>
+  <tr><td>تعديلات الضوابط</td><td class="num">—</td><td class="num">TEF×${e.tef.toFixed(2)} · RS+${e.rs.toFixed(0)} · LM×${e.lm.toFixed(2)}</td></tr>`;
+}
+
+/* -------- Tab 4 -------- */
+function renderT4(){
+ const tr=(AI&&AI.treatment)?Object.assign(localTreat(),AI.treatment):localTreat();
+ const O=[["mitigate","التخفيف Mitigate","🛠️","#5b8cff"],["transfer","النقل Transfer","🤝","#a78bfa"],["avoid","التجنب Avoid","⛔","#f05252"],["accept","القبول / الاستثناء","🖋️","#f5a524"]];
+ $("#opts").innerHTML=O.map(([k,n,ic,c])=>`<div class="opt ${R.rec.k===k?"rec":""} ${S.chosen===k?"sel":""}" data-k="${k}">${R.rec.k===k?'<span class="tag g rb">✓ الموصى به</span>':""}<div class="ot"><span class="oi" style="background:${c}22;color:${c}">${ic}</span>${n}</div><p>${esc(tr[k])}</p></div>`).join("")+`<div class="s2" style="grid-column:1/-1"><div class="verdict g"><div style="font-size:20px">💡</div><div><b>منطق التوصية:</b> <span class="small">${esc(R.rec.why)}</span></div></div></div>`;
+ $$("#opts .opt").forEach(el=>el.onclick=()=>{S.chosen=el.dataset.k;if(el.dataset.k==="accept"){S.memo="accept";}renderT4();save();});
+ // memo
+ $$("#memoSeg button").forEach(b=>{b.classList.toggle("on",b.dataset.v===S.memo);b.onclick=()=>{S.memo=b.dataset.v;renderT4();save();};});
+ $("#memoTitle").textContent=S.memo==="accept"?"مذكرة قبول الخطر الرسمي":"مذكرة الاستثناء المؤقت";
+ const mm=memoText();$("#memo").innerHTML=mm.html;
+ // resilience
+ const d=dwell(),bc=bcdrT();
+ $("#dwellK").innerHTML=`<div class="kpi r"><div class="l">زمن البقاء المقدّر حالياً</div><div class="v">${d.now} <span class="small">يوم</span></div></div><div class="kpi g"><div class="l">بعد الضوابط المختارة</div><div class="v">${d.after} <span class="small">يوم</span></div><div class="h">خفض ${pct(1-d.after/d.now)}</div></div>`;
+ const ds=(AI&&AI.resilience&&AI.resilience.dwell?.length)?AI.resilience.dwell:DWELL_STEPS;
+ const cs=(AI&&AI.resilience&&AI.resilience.csirt?.length)?AI.resilience.csirt:CSIRT_STEPS;
+ $("#dwellSteps").innerHTML=ds.map(x=>`<li>${esc(x)}</li>`).join("");
+ $("#csirt").innerHTML=cs.map(x=>`<li>${esc(x)}</li>`).join("");
+ const bcx=(AI&&AI.resilience&&AI.resilience.bcdr?.length)?AI.resilience.bcdr:["تحديث تحليل أثر الأعمال (BIA) للأصل وربطه بالعمليات المدرة للدخل","تفعيل خطة BC بإجراءات تشغيل يدوية بديلة عند تجاوز RTO","اختبار استعادة كاملة من نسخ معزولة ربع سنوياً وتوثيق الزمن الفعلي"];
+ $("#bcdr").innerHTML=`<div class="grid g3" style="gap:8px;margin-bottom:8px"><div class="kpi"><div class="l">RTO المستهدف</div><div class="v" style="direction:rtl;font-size:16px">${bc.rto}</div></div><div class="kpi"><div class="l">RPO المستهدف</div><div class="v" style="direction:rtl;font-size:16px">${bc.rpo}</div></div><div class="kpi a"><div class="l">تكلفة ساعة التوقف</div><div class="v" style="font-size:16px">${money(bc.hr)}</div></div></div><ol class="steps">${bcx.map(x=>`<li>${esc(x)}</li>`).join("")}</ol>`;
+ // CSF controls
+ const t=S.scen.type,m=SIZE[S.org.size].c;
+ $("#csf").innerHTML=Object.entries(CSF).map(([f,v])=>{const list=CTL.filter(c=>c.f===f);const ns=list.filter(c=>S.ctl.includes(c.id)).length;
+  return `<div class="csfc"><div class="ch" style="background:${v.c}1f;color:${v.c}"><span>${v.n}</span><span class="tag">${ns}/${list.length}</span></div>${list.map(c=>`<label class="ctl ${c.t.includes(t)?"rel":""}"><input type="checkbox" data-c="${c.id}" ${S.ctl.includes(c.id)?"checked":""}><div><div class="cn">${c.n}</div><div class="cc">${money(c.cost*m)}/سنة</div><div class="mp">ISO ${c.iso} · NIST ${c.nist}<br>COBIT ${c.cobit} · CCM ${c.ccm}</div></div></label>`).join("")}</div>`;}).join("");
+ $$("#csf input[data-c]").forEach(cb=>cb.onchange=()=>{const id=cb.dataset.c;S.ctl=cb.checked?[...new Set([...S.ctl,id])]:S.ctl.filter(x=>x!==id);S.chosen=null;recompute(true);toast("أُعيد حساب الخطر المتبقي و ROSI");});
+ $("#ctlSum").textContent=`${R.eff.n} ضابط · ${money(R.eff.cost)}/سنة · ROSI ${R.eff.cost?pct(R.rosi):"—"}`;
+ $("#ctlSum").className="tag "+(R.rosi>=0?"g":"r");
+ renderRACI();
+}
+function raciDefault(){
+ const g=R.gov.k;
+ return ACTS.map(([n,row])=>{const r=[...row];
+  if(g==="decentral"&&n.startsWith("تنفيذ الضوابط")){r[4]="C";r[5]="R";}
+  if(g==="central"&&n.startsWith("تنفيذ الضوابط")){r[2]="A";r[4]="R";}
+  return r;});
+}
+function renderRACI(){
+ if(!S.raci||S.raci.length!==ACTS.length)S.raci=raciDefault();
+ const cyc=["R","A","C","I",""];
+ $("#raci").innerHTML=`<tr><th>النشاط</th>${ROLES.map(r=>`<th>${r}</th>`).join("")}</tr>`+ACTS.map(([n],i)=>`<tr><td>${n}</td>${ROLES.map((_,j)=>{const v=S.raci[i][j]||"";return `<td><button class="rc ${v}" data-i="${i}" data-j="${j}">${v||"·"}</button></td>`;}).join("")}</tr>`).join("");
+ $$("#raci .rc").forEach(b=>b.onclick=()=>{const i=+b.dataset.i,j=+b.dataset.j;const v=S.raci[i][j]||"";S.raci[i][j]=cyc[(cyc.indexOf(v)+1)%cyc.length];save();renderRACI();});
+ const bad=S.raci.map((r,i)=>({i,a:r.filter(x=>x==="A").length,rr:r.filter(x=>x==="R").length})).filter(x=>x.a!==1||x.rr<1);
+ const t=$("#raciChk");t.className="tag "+(bad.length?"r":"g");t.textContent=bad.length?`⚠ ${bad.length} نشاط يحتاج A واحداً و R واحداً على الأقل`:"✓ المصفوفة سليمة";
+}
+
+/* -------- Tab 5 -------- */
+function renderT5(){
+ const lv=policyLevel();
+ const W=520,H=300,n=PYR.length;
+ $("#pyr").innerHTML=`<svg class="pyr" viewBox="0 0 ${W} ${H}" width="100%" style="max-height:320px">${PYR.map((p,i)=>{const y0=10+i*(H-20)/n,y1=y0+(H-20)/n-4,tw=(k)=>40+(W-80)*(k/n);const x0t=W/2-tw(i)/2,x1t=W/2+tw(i)/2,x0b=W/2-tw(i+1)/2,x1b=W/2+tw(i+1)/2;const on=i===lv;
+  return `<polygon points="${x0t},${y0} ${x1t},${y0} ${x1b},${y1} ${x0b},${y1}" fill="${on?"rgba(91,140,255,.45)":"rgba(23,33,64,.9)"}" stroke="${on?"#7aa2ff":"#2f3f6b"}" stroke-width="${on?2.5:1}"/><text x="${W/2}" y="${(y0+y1)/2-1}" text-anchor="middle" fill="${on?"#fff":"#c5cde0"}" font-size="${i<1?11.5:13}" font-weight="${on?700:500}">${p.n}${on?" ◄ المطلوب":""}</text><text x="${W/2}" y="${(y0+y1)/2+14}" text-anchor="middle" fill="${on?"#dbe5ff":"#64718f"}" font-size="10.5">${i===0?"":p.d}</text>`;}).join("")}</svg>`;
+ const T=SCTYPES[S.scen.type];
+ const pt=AI&&AI.policy&&AI.policy.title?AI.policy.title:({0:"ميثاق برنامج الأمن السيبراني",1:"سياسة حماية البيانات والخصوصية",2:"معيار "+(S.scen.type==="thirdparty"?"أمن الأطراف الثالثة":S.scen.type==="cloud"?"التهيئة السحابية الآمنة":S.scen.type==="byod"?"الأجهزة الشخصية والعمل عن بعد":"الأمن الإلزامي"),3:"عملية "+(S.scen.type==="ransomware"?"الاستجابة للحوادث والتعافي":"إدارة المخاطر"),4:"إجراء "+(S.scen.type==="insider"?"الوصول الطارئ Break Glass":"إدارة الثغرات والترقيع"),5:"إرشادات "+(S.scen.type==="phishing"?"التعامل مع الطلبات المالية العاجلة":"الممارسات الآمنة")})[lv];
+ $("#pyrNote").innerHTML=`<b>الوثيقة المطلوبة:</b> ${esc(pt)} — ${PYR[lv].n} (${PYR[lv].d}).${AI&&AI.policy&&AI.policy.rationale?" "+esc(AI.policy.rationale):lv===0?" النضج المنخفض في الأفراد والعمليات يستدعي البدء بميثاق يوقعه CEO يحدد التفويض والمسؤوليات قبل أي وثيقة أدنى.":" يعالج سيناريو «"+T.n+"» على هذا المستوى من الهرم لأنه يحدد «كيف» دون تغيير مبادئ السياسة العليا."}`;
+ const aw=(AI&&AI.awareness&&AI.awareness.body)?[AI.awareness.title||"",AI.awareness.body]:AWARE[T.topic];
+ $("#aware").innerHTML=`<b style="font-size:15px;color:#86efac">${esc(aw[0])}</b>\n\n${esc(aw[1])}`;
+ const cd=cultureDims();
+ $("#cult").innerHTML=cd.map(d=>`<div class="cu"><div class="t"><span>${d.k}</span><span class="tag b">${d.v.toFixed(1)} ← ${d.t.toFixed(1)}</span></div><div class="bar"><i style="width:${d.t/5*100}%;background:rgba(34,197,94,.35)"></i><i style="width:${d.v/5*100}%;background:#5b8cff"></i></div><p><b style="color:#c5cde0">آلية القياس:</b> ${d.m}</p><p><b style="color:#c5cde0">المؤشر المستهدف:</b> ${d.kpi}</p></div>`).join("");
+ const cols=["#5b8cff","#f05252","#a78bfa","#22c55e","#f5a524"];
+ $("#board").innerHTML=boardCards().map((c,i)=>`<div class="bc" style="border-top-color:${cols[i]}"><div class="bn">البطاقة ${i+1}</div><b>${c[0]}</b><p>${esc(c[1])}</p></div>`).join("");
+ renderPlan();
+}
+function renderPlan(force){
+ if(!S.plan||force)S.plan=defaultPlan();
+ if(!S.stake)S.stake=defaultStake();
+ const P=S.plan;
+ $("#planTbl").innerHTML=`<tr><th>✓</th><th>الأولوية</th><th>الحالي (1-5)</th><th>المستهدف</th><th>أهداف التحسين (1-3)</th><th>مقاييس الأداء</th><th>المالك</th><th>يوم 30</th><th>يوم 60</th><th>يوم 90</th></tr>`+
+  P.map((r,i)=>`<tr><td><input type="checkbox" data-pi="${i}" data-f="in" ${r.in?"checked":""} style="accent-color:var(--ac)"></td><td style="font-weight:600;min-width:150px">${r.n}</td><td><input type="number" min="1" max="5" step="0.5" value="${r.cur}" data-pi="${i}" data-f="cur"></td><td><input type="number" min="1" max="5" step="0.5" value="${r.tgt}" data-pi="${i}" data-f="tgt"></td>${["goals","metric","owner","m30","m60","m90"].map(f=>`<td contenteditable data-pi="${i}" data-f="${f}">${esc(r[f])}</td>`).join("")}</tr>`).join("");
+ $$("#planTbl [data-pi]").forEach(el=>{const i=+el.dataset.pi,f=el.dataset.f;
+  const h=()=>{S.plan[i][f]=el.type==="checkbox"?el.checked:el.type==="number"?parseFloat(el.value):el.innerText.trim();save();};
+  el.addEventListener(el.isContentEditable?"input":"change",h);});
+ $("#stakeTbl").innerHTML=`<tr><th>صاحب المصلحة</th><th>الاهتمام / الدور</th><th>قناة وتكرار التواصل</th><th>المسؤول عن التواصل</th></tr>`+S.stake.map((r,i)=>`<tr>${r.map((c,j)=>`<td contenteditable data-si="${i}" data-sj="${j}">${esc(c)}</td>`).join("")}</tr>`).join("");
+ $$("#stakeTbl [data-si]").forEach(el=>el.addEventListener("input",()=>{S.stake[+el.dataset.si][+el.dataset.sj]=el.innerText.trim();save();}));
+}
+
+/* ===================== Export / copy ===================== */
+function planCSV(){
+ const q=s=>'"'+String(s??"").replace(/"/g,'""')+'"';
+ const rows=[["ضمن النطاق","الأولوية","الحالي","المستهدف","أهداف التحسين","المقاييس","المالك","يوم 30","يوم 60","يوم 90"]];
+ S.plan.forEach(r=>rows.push([r.in?"نعم":"لا",r.n,r.cur,r.tgt,r.goals,r.metric,r.owner,r.m30,r.m60,r.m90]));
+ rows.push([]);rows.push(["صاحب المصلحة","الاهتمام","قناة التواصل","المسؤول"]);S.stake.forEach(r=>rows.push(r));
+ rows.push([]);rows.push(["المؤسسة",S.org.name,"السيناريو",SCTYPES[S.scen.type].n,"ALE كامن",Math.round(R.inh.mean),"ALE متبقٍ",Math.round(R.res.mean),"ROSI",R.rosi.toFixed(2)]);
+ return "﻿"+rows.map(r=>r.map(q).join(",")).join("\r\n");
+}
+function copyText(k){
+ if(k==="memo")return $("#memo").innerText;
+ if(k==="aware")return $("#aware").innerText;
+ if(k==="board")return boardCards().map((c,i)=>`${i+1}) ${c[0]}: ${c[1]}`).join("\n\n");
+ if(k==="plan")return S.plan.map(r=>[r.in?"✓":"",r.n,r.cur,r.tgt,r.goals,r.metric,r.owner,r.m30,r.m60,r.m90].join("\t")).join("\n");
+ return "";
+}
+document.addEventListener("click",async e=>{
+ const b=e.target.closest("[data-copy]");if(!b)return;
+ try{await navigator.clipboard.writeText(copyText(b.dataset.copy));toast("تم النسخ إلى الحافظة");}catch(err){toast("تعذر النسخ في هذا العرض — حدد النص يدوياً");}
+});
+let DL=null;
+$("#btnCsv").onclick=async()=>{
+ const data=planCSV();
+ if(DL){try{await DL.save({filename:"success-plan-90-days.csv",data});toast("تم حفظ الملف");return;}catch(err){if(err&&err.code==="declined"){toast("أُلغي الحفظ");return;}}}
+ try{const a=document.createElement("a");a.href=URL.createObjectURL(new Blob([data],{type:"text/csv;charset=utf-8"}));a.download="success-plan-90-days.csv";document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove();},1500);if(!IN_CLAUDE){toast("تم تنزيل الملف");return;}}catch(e1){}
+ try{await navigator.clipboard.writeText(data);toast("إذا لم يبدأ التنزيل — نُسخ CSV إلى الحافظة");}catch(e2){toast("التصدير غير متاح في هذا العرض");}
+};
+
+/* ===================== AI enrichment ===================== */
+let SAMPLE=null,abortC=null;
+function aiPrompt(){
+ const ctx={org:S.org,orgDerived:{governance:R.gov.n,compliance:R.compl,avgMaturity:+avgMat().toFixed(2),topPriorities:R.prio.filter(p=>p.focus).map(p=>p.n)},
+  scenario:S.scen.text,localType:S.scen.type,severity:S.scen.sev,asset:S.asset,assetRisk:R.arp.n,bra:R.bra.n,
+  fairCurrent:S.fair,results:{inherentMean:Math.round(R.inh.mean),residualMean:Math.round(R.res.mean),residualP90:Math.round(R.res.p90),controlCost:Math.round(R.eff.cost),rosi:+R.rosi.toFixed(2)},
+  selectedControls:CTL.filter(c=>S.ctl.includes(c.id)).map(c=>c.n)};
+ return `أنت مستشار تنفيذي في الأمن السيبراني وإدارة مخاطر الأعمال، تطبق منهجية كتاب "Rational Cybersecurity for Business" لـ Dan Blum (الأولويات الست، قاعدة 80/20، Open FAIR، ISO 31000)، بأسلوب هادئ قائم على الأرقام وخالٍ تماماً من التخويف والشك (FUD).
+حلل السيناريو والبيانات التالية وأعد JSON فقط بالعربية الفصحى المهنية الموجزة (كل نص 1-3 جمل، والقوائم 4-6 عناصر)، بهذا الشكل الدقيق:
+{"scenarioType":"واحد من: ransomware|cloud|thirdparty|vuln|insider|phishing|privacy|byod|general",
+"summary":"خلاصة تنفيذية من جملتين",
+"pestle":{"P":"","E":"","S":"","T":"","L":"","En":""},
+"fair":{"tef":[min,ml,max],"poa":[min,ml,max],"tcap":[min,ml,max],"pl":[min,ml,max],"slef":نسبة 0-100,"sl":[min,ml,max],"rationale":"جملة واحدة"},
+"treatment":{"mitigate":"تعديل عمليات الأعمال + ضوابط خط الأساس + الديون التقنية + DevSecOps","transfer":"SLA ومسؤولية مشتركة مع CSP + تأمين طرف أول وطرف ثالث","avoid":"متى نوقف النشاط أو نرفض المورد","accept":"شروط القبول أو الاستثناء المؤقت"},
+"resilience":{"dwell":["..."],"csirt":["... مع القانونية وPR وHR"],"bcdr":["... مبني على BIA"]},
+"policy":{"level":رقم 0-5 (0 ميثاق،1 سياسة عليا،2 معيار،3 عملية،4 إجراء،5 إرشادات),"title":"","rationale":""},
+"awareness":{"title":"","body":"رسالة 80-130 كلمة بعلم النفس الإيجابي والكفاءة الذاتية والإثبات الاجتماعي الإيجابي، بمبدأ يمكننا القيام بذلك، مع 3 خطوات مرقمة"},
+"board":["الوضع الحالي والفجوات","الربط بأثر الأعمال","العمل الجماعي بين الأقسام","نتائج الأعمال ومقاييس الأداء","توقعات واقعية للمخاطر المتبقية"],
+"plan":[{"priority":"culture|risk|baseline|simplify|access|resil","goals":"1-3 أهداف مفصولة بـ ·","metric":""}]}
+قيم FAIR بالدولار الأمريكي وواقعية لحجم المؤسسة؛ tef أحداث تهديد سنوياً؛ tcap مئين 0-100. استخدم الأرقام المحسوبة في results داخل نصوص المجلس. لا تضف أي نص خارج JSON.
+البيانات:
+${JSON.stringify(ctx)}`;
+}
+/* ---- BYOK: user's own Claude API key ---- */
+const KEYS={k:"rcde_api_key",m:"rcde_api_model"};
+let API_KEY="",API_MODEL="claude-sonnet-5-5";
+function stGet(st,k){try{return window[st].getItem(k)||"";}catch(e){return "";}}
+function stSet(st,k,v){try{v?window[st].setItem(k,v):window[st].removeItem(k);}catch(e){}}
+function loadKey(){API_KEY=stGet("sessionStorage",KEYS.k)||stGet("localStorage",KEYS.k);API_MODEL=stGet("localStorage",KEYS.m)||API_MODEL;}
+function storeKey(key,remember){stSet("sessionStorage",KEYS.k,key);stSet("localStorage",KEYS.k,remember?key:"");stSet("localStorage",KEYS.m,API_MODEL);API_KEY=key;}
+const IN_CLAUDE=/(^|\.)claude\.ai$|claudeusercontent|claude\.site/i.test(location.hostname)||location.ancestorOrigins?.length>0&&/claude/i.test(location.ancestorOrigins[0]||"");
+async function callClaudeAPI(prompt,signal,maxTok){
+ const r=await fetch("https://api.anthropic.com/v1/messages",{method:"POST",signal,headers:{"content-type":"application/json","x-api-key":API_KEY,"anthropic-version":"2023-06-01","anthropic-dangerous-direct-browser-access":"true"},
+  body:JSON.stringify({model:API_MODEL,max_tokens:maxTok||6000,messages:[{role:"user",content:prompt}]})});
+ let j=null;try{j=await r.json();}catch(e){}
+ if(!r.ok){const msg=j?.error?.message||("HTTP "+r.status);throw {code:r.status===401?"bad_key":r.status===429?"rate_limited":r.status===404?"bad_model":r.status===529?"overloaded":"api_error",message:msg};}
+ return (j?.content||[]).filter(b=>b.type==="text").map(b=>b.text).join("");
+}
+function aiReady(){return !!SAMPLE||!!API_KEY;}
+function setStatusIdle(){
+ if(SAMPLE){$("#aiDot").className="dot on";$("#aiStat").textContent="الذكاء الاصطناعي متاح (claude.ai)";}
+ else if(API_KEY){$("#aiDot").className="dot on";$("#aiStat").textContent="الذكاء الاصطناعي متاح — مفتاحك";}
+ else{$("#aiDot").className="dot";$("#aiStat").textContent="المحرك المحلي — أضف مفتاح API ⚙️";}
+}
+function openSettings(){
+ $("#kIn").value=API_KEY;$("#kModel").value=API_MODEL;$("#kRemember").checked=!!stGet("localStorage",KEYS.k);$("#kStat").textContent="";
+ $("#envNote").innerHTML=SAMPLE?"أنت تفتح الصفحة داخل claude.ai: التحليل الذكي يعمل عبر حسابك هناك مباشرة ولا يحتاج مفتاحاً.":"أنت تفتح الصفحة على موقع خارجي: أضف مفتاح Claude API لتفعيل التحليل الذكي. بدونه يعمل المحرك المحلي فقط.";
+ $("#setM").classList.add("on");
+}
+$("#btnSettings").onclick=openSettings;
+$("#kClose").onclick=()=>$("#setM").classList.remove("on");
+$("#setM").addEventListener("click",e=>{if(e.target.id==="setM")$("#setM").classList.remove("on");});
+$("#kShow").onclick=()=>{const i=$("#kIn");i.type=i.type==="password"?"text":"password";};
+$("#kModel").onchange=e=>{API_MODEL=e.target.value;stSet("localStorage",KEYS.m,API_MODEL);};
+$("#kSave").onclick=()=>{const k=$("#kIn").value.trim();if(k&&!/^sk-ant-/.test(k)){$("#kStat").innerHTML='<span class="pill-bad">صيغة المفتاح غير صحيحة — يبدأ عادةً بـ sk-ant-</span>';return;}API_MODEL=$("#kModel").value;storeKey(k,$("#kRemember").checked);setStatusIdle();$("#kStat").innerHTML=k?'<span class="pill-ok">✓ حُفظ المفتاح</span>':"";if(k){$("#setM").classList.remove("on");toast("تم تفعيل الذكاء الاصطناعي بمفتاحك");}};
+$("#kClear").onclick=()=>{storeKey("",false);$("#kIn").value="";setStatusIdle();$("#kStat").innerHTML='<span class="pill-ok">حُذف المفتاح من هذا الجهاز</span>';};
+$("#kTest").onclick=async()=>{
+ const k=$("#kIn").value.trim();if(!k){$("#kStat").innerHTML='<span class="pill-bad">أدخل المفتاح أولاً</span>';return;}
+ const old=API_KEY;API_KEY=k;API_MODEL=$("#kModel").value;$("#kStat").textContent="جارٍ الاختبار…";
+ try{const t=await callClaudeAPI("أجب بكلمة واحدة: جاهز",undefined,20);$("#kStat").innerHTML='<span class="pill-ok">✓ الاتصال ناجح ('+esc(API_MODEL)+'): '+esc(t.trim().slice(0,30))+'</span>';}
+ catch(err){$("#kStat").innerHTML='<span class="pill-bad">✗ '+esc(err.code==="bad_key"?"المفتاح غير صالح":err.code==="bad_model"?"النموذج غير متاح لهذا المفتاح":err.message||"تعذر الاتصال (تحقق من الشبكة)")+'</span>';}
+ finally{API_KEY=old;}
+};
+
+async function aiAnalyze(){
+ if(!aiReady())return false;
+ abortC=new AbortController();
+ $("#ov").classList.add("on");$("#aiDot").className="dot busy";$("#aiStat").textContent="الذكاء الاصطناعي يحلل…";
+ try{
+  let out;
+  const opts={signal:abortC.signal,modelTier:"default"};
+  if(SAMPLE){if(typeof SAMPLE.json==="function"){out=await SAMPLE.json(aiPrompt(),opts);}else{const r=await SAMPLE(aiPrompt(),opts);out=r.text;}}
+  else{out=await callClaudeAPI(aiPrompt(),abortC.signal);}
+  if(typeof out==="string"){const m=out.match(/\{[\s\S]*\}/);out=m?JSON.parse(m[0]):null;}
+  if(!out||typeof out!=="object")throw {message:"bad"};
+  AI=out;document.body.classList.add("has-ai");
+  if(AI.scenarioType&&SCTYPES[AI.scenarioType]&&AI.scenarioType!==S.scen.type){S.scen.type=AI.scenarioType;applyScenarioDefaults(S.scen.type);}
+  const F=AI.fair;
+  if($("#aiFair").checked&&F&&[F.tef,F.tcap,F.pl,F.sl].every(a=>Array.isArray(a)&&a.length===3&&a.every(isFinite))){
+   const srt=a=>a.map(Number).sort((x,y)=>x-y);
+   S.fair.tef=srt(F.tef);S.fair.tcap=srt(F.tcap).map(v=>clamp(v,0,100));S.fair.pl=srt(F.pl);S.fair.sl=srt(F.sl);
+   if(Array.isArray(F.poa)&&F.poa.length===3)S.fair.poa=srt(F.poa).map(v=>clamp(v,0,100));
+   if(isFinite(F.slef))S.fair.slef=clamp(+F.slef,0,100);
+  }
+  S.plan=null;S.chosen=null;bindAll();recompute(true);renderPlan(true);
+  $("#aiDot").className="dot on";$("#aiStat").textContent="مُعزّز بالذكاء الاصطناعي";toast("اكتمل التحليل الذكي وحُدّثت جميع التبويبات");
+  return true;
+ }catch(err){
+  $("#aiDot").className="dot on";
+  if(err&&err.code==="not_granted"){SAMPLE=null;$("#aiDot").className="dot";$("#aiStat").textContent="المحرك المحلي (لم يُمنح إذن الذكاء الاصطناعي)";}
+  else if(err&&err.code==="bad_key"){$("#aiDot").className="dot";$("#aiStat").textContent="مفتاح API غير صالح — راجع الإعدادات ⚙️";toast("مفتاح API غير صالح");}
+  else if(err&&err.code==="bad_model"){$("#aiStat").textContent="النموذج غير متاح لمفتاحك — غيّره من الإعدادات";}
+  else if(err&&err.code==="rate_limited"){$("#aiStat").textContent="الذكاء الاصطناعي مشغول — أعد المحاولة لاحقاً";}
+  else if(err&&err.name==="AbortError"||abortC.signal.aborted){$("#aiStat").textContent="أُلغي — النتائج من المحرك المحلي";}
+  else{$("#aiStat").textContent="تعذر التحليل الذكي — النتائج من المحرك المحلي";}
+  return false;
+ }finally{$("#ov").classList.remove("on");}
+}
+$("#ovCancel").onclick=()=>{abortC&&abortC.abort();$("#ov").classList.remove("on");};
+
+/* ===================== Analyze ===================== */
+async function analyze(){
+ const txt=(S.scen.text||"").trim();
+ if(!txt){location.hash="triage";toast("اكتب وصف السيناريو أو اختر سيناريو جاهزاً أولاً");$("[data-k='scen.text']").focus();return;}
+ AI=null;document.body.classList.remove("has-ai");
+ S.scen.type=classify(txt);
+ applyScenarioDefaults(S.scen.type);
+ S.plan=null;S.raci=null;
+ bindAll();recompute(true);renderPlan(true);
+ toast("المحرك المحلي: صُنّف السيناريو «"+SCTYPES[S.scen.type].n+"»");
+ if(aiReady())await aiAnalyze();
+ if(location.hash!=="#fair")location.hash="fair";
+}
+$("#btnAnalyze").onclick=analyze;$("#btnAnalyze2").onclick=analyze;
+$("#btnRun").onclick=()=>{recompute(true);toast("اكتملت محاكاة مونت كارلو");};
+$("#iters").onchange=()=>recompute(true);
+
+/* presets */
+$("#preset").innerHTML+=PRESETS.map((p,i)=>`<option value="${i}">${p.n}</option>`).join("");
+$("#preset").onchange=e=>{const p=PRESETS[+e.target.value];if(!p)return;S.scen.text=p.text;Object.assign(S.asset,{...p.a,cls:String(p.a.cls),crit:String(p.a.crit)});if(p.sop)S.scen.sopDays=p.sop;else S.scen.sopDays=10;bindAll();save();toast("حُمّل السيناريو — اضغط «تحليل»");};
+
+/* ===================== Tabs routing ===================== */
+const TABS=["calibrate","triage","fair","treat","plan"];
+function route(){const h=location.hash.slice(1);const t=TABS.includes(h)?h:"calibrate";
+ $$("nav.tabs a").forEach(a=>a.classList.toggle("act",a.dataset.t===t));$$("section.tab").forEach(s=>s.classList.toggle("act",s.id==="t-"+t));
+ Object.values(charts).forEach(c=>{try{c.resize();}catch(e){}});}
+window.addEventListener("hashchange",route);
+
+/* ===================== Init ===================== */
+if(!S.scen.text){const p=PRESETS[0];S.scen.text=p.text;Object.assign(S.asset,p.a);S.scen.type="ransomware";applyScenarioDefaults("ransomware");}
+bindAll();route();recompute(true);
+loadKey();setStatusIdle();
+(async()=>{
+ let w=null;for(let k=0;k<20&&!(w=window.claude);k++)await new Promise(r=>setTimeout(r,250));
+ try{if(w&&typeof w.use==="function"){
+  w.use("sample").then(s=>{if(s){SAMPLE=s;setStatusIdle();}}).catch(()=>{});
+  w.use("downloads").then(d=>{DL=d||null;}).catch(()=>{});
+ }}catch(e){}
+})();
+</script>
+</body>
+</html>
